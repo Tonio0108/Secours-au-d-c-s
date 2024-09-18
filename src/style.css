@@ -1,0 +1,121 @@
+@import url(./CSS/sideBar.css);
+@import url(../node_modules/bootstrap/dist/css/bootstrap.css);
+@import url(./CSS/Login.css);
+@import url(./CSS/stat.css);
+*{
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif !important; 
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: rgb(15, 15, 15);
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,body {
+  margin: 0;
+  height: 100%;
+}
+
+#app {
+  height: 100%;
+  width: 100%;
+}
+
+#container{
+  display: grid;
+  grid-template-columns: auto 1fr;
+  height: 100%;
+}
+
+
+#logo2{
+  position:absolute;
+  right: 10px;
+  top: 2px;
+}
+
+#title{
+  text-align: center;
+  margin-top: 10px;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-shadow: 6px 5px 20px 
+}
+
+.grid-item{
+  height: 100%;
+}
+
+#searchBar{
+  width: 99.5%;
+  margin-top: 5rem;
+  margin-left: 3px;
+  border: solid 1px rgb(182, 182, 182);
+}
+
+#searchBarSec{
+  width: 99.5%;
+  margin-top: 5rem;
+  margin-left: 3px;
+  border: solid 1px rgb(182, 182, 182);
+}
+
+input::placeholder{
+  text-align: center;
+  font-family:'Courier New', Courier, monospace;
+  font-size: small;
+}
+
+#import{
+  position: absolute;
+  top: 11rem;
+  margin-left: 3rem;
+}
+
+#decisionBtn{
+  position: absolute;
+  top: 11rem;
+  right: 3rem;
+  margin-left: 3rem;
+}
+
+#importB{
+  position: absolute;
+  top: 3rem;
+  margin-left: 3rem;
+}
+
+#tableau, #tabRetraite{
+  margin-top: 5rem;
+}
+
+td{
+  font-size: small;
+}
+
+#annee{
+  width: 100px;
+}
+
+.form-group {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10px;
+}
+.form-group label {
+  margin-right: 10px; /* Ajustez la marge selon vos besoins */
+}
+
+th{
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif !important;
+  font-size: 0.9rem;
+}
+
+label{
+  font-size: 0.9rem;
+}

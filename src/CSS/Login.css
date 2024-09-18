@@ -1,0 +1,21 @@
+
+#title{
+    text-transform:uppercase;
+}
+
+#formulaire{
+    margin-top: 200px;
+}
+
+.col-6.shadow.rounded-4.text-center{
+    height: 24rem;
+    margin-left: 200px;
+}
+
+.form-control{
+    width: 20rem;
+    margin: auto;
+    margin-top: 2rem;
+}
+
+
