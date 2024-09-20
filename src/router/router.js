@@ -37,6 +37,12 @@ const routes = [
     component: () => import('../components/decision.vue')
   },
 
+  {
+    path: '/impression',
+    name: 'Impression',
+    component: () => import('../components/impression.vue')
+  },
+
 ];
 
 const router = createRouter({

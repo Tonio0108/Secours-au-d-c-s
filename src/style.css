@@ -30,6 +30,7 @@ html,body {
   display: grid;
   grid-template-columns: auto 1fr;
   height: 100%;
+  width: 100%;
 }
 
 
@@ -51,11 +52,19 @@ html,body {
   height: 100%;
 }
 
-#searchBar{
+#searchBar,#form-secours{
   width: 99.5%;
   margin-top: 5rem;
   margin-left: 3px;
   border: solid 1px rgb(182, 182, 182);
+}
+
+#form-secours {
+  padding: 2rem;
+}
+
+#form-secours .form-control{
+  margin: 0;
 }
 
 #searchBarSec{
@@ -119,3 +128,51 @@ th{
 label{
   font-size: 0.9rem;
 }
+
+.head h6{
+  text-transform: uppercase;
+}
+
+#decision th{
+  text-transform: uppercase;
+  font-size: large;
+}
+
+#decision {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#decision th, #decision td {
+
+  padding: 8px;
+}
+
+#decision th {
+  background-color: #f5f5f5;
+  text-align: center;
+}
+
+#decision td {
+  vertical-align: top;
+}
+
+/* Equal width for both position columns */
+#decision td:first-child, #decision td:last-child {
+  width: 50%;
+}
+
+.inner-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inner-table td {
+  padding: 6px 10px;
+  border: none
+}
+
+.text-center {
+  text-align: center;
+}
+
