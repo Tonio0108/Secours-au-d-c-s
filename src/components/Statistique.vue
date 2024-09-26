@@ -49,7 +49,7 @@
   <div id="graph" class="mt-4 shadow">
     <h5>Representation graphiques du secours au décès</h5>
     <div class="col-9 shadow" style="height: 29rem; margin-left: 11rem;">
-      <!-- Graphique ici -->
+      
     </div>
   </div>
 </template>

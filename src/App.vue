@@ -50,23 +50,23 @@
       </div>
     </div>
 
-    <!-- Contenu principal -->
-  <transition name="fade" mode="out-in">
-    <div class="grid-item" id="content" style="width: 100%;">
-        <RouterView />
+
+    <div class="grid-item" id="content" style="width: 100%;">  
+          <RouterView />
     </div>
-  </transition>
-    </div>
+</div>
   
 </template>
 
 <style>
-
-.fade-enter-active, .fade-leave-active{
-  transition: opacity 1s ease;
-}
-.fade-enter, .fade-leave-to{
-    opacity: 0;
+/* we will explain what these classes do next! */
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
 }
 
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
 </style>
