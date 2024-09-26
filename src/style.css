@@ -54,7 +54,7 @@ html,body {
 
 #searchBar,#form-secours{
   width: 99.5%;
-  margin-top: 5rem;
+  margin-top: 3rem;
   margin-left: 3px;
   border: solid 1px rgb(182, 182, 182);
 }
@@ -67,12 +67,18 @@ html,body {
   margin: 0;
 }
 
-#searchBarSec{
-  width: 99.5%;
+#searchBarBarem .form-control{
+  margin-top: 0;
+}
+
+#searchBarSec , #searchBarBarem{
+  width: 99%;
   margin-top: 5rem;
   margin-left: 3px;
   border: solid 1px rgb(182, 182, 182);
 }
+
+
 
 input::placeholder{
   text-align: center;
@@ -141,15 +147,16 @@ label{
 #decision {
   width: 100%;
   border-collapse: collapse;
+
 }
 
 #decision th, #decision td {
-
+  font-size: medium !important;
   padding: 8px;
 }
 
 #decision th {
-  background-color: #f5f5f5;
+  background-color: #cccccc;
   text-align: center;
 }
 
@@ -160,6 +167,7 @@ label{
 /* Equal width for both position columns */
 #decision td:first-child, #decision td:last-child {
   width: 50%;
+  
 }
 
 .inner-table {
@@ -176,3 +184,23 @@ label{
   text-align: center;
 }
 
+
+#etat table td{
+  padding: 10px;
+}
+
+
+#etat table{
+  margin-left: auto;
+  margin-right: auto;
+
+}
+
+#etat table td:first-child{
+  text-align: end;
+}
+
+#etat table td:last-child{
+  text-align: start;
+  padding-left: 4rem;
+}

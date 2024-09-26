@@ -3,12 +3,15 @@
 
   import LoginPage from './components/LoginPage.vue'
   import Pwd from './components/Pwd.vue';
+  import welcome from './components/welcome.vue'
 </script>
 
 <template>
 
     <LoginPage v-if="$route.path == '/'"/>
 
+    <welcome v-else-if="$route.path == '/welcome'"/>
+    
     <div v-else id="container">
       <div  class="grid-item">
       <div class="sideBar">
@@ -48,10 +51,22 @@
     </div>
 
     <!-- Contenu principal -->
+  <transition name="fade" mode="out-in">
     <div class="grid-item" id="content" style="width: 100%;">
-      <RouterView />
+        <RouterView />
     </div>
-
+  </transition>
     </div>
   
 </template>
+
+<style>
+
+.fade-enter-active, .fade-leave-active{
+  transition: opacity 1s ease;
+}
+.fade-enter, .fade-leave-to{
+    opacity: 0;
+}
+
+</style>
