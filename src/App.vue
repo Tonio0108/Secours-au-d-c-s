@@ -9,9 +9,8 @@
 <template>
 
     <LoginPage v-if="$route.path == '/'"/>
-
     <welcome v-else-if="$route.path == '/welcome'"/>
-    
+    <Pwd v-else-if="$route.path == '/pwd'" />
     <div v-else id="container">
       <div  class="grid-item">
       <div class="sideBar">

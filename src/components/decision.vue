@@ -5,102 +5,7 @@
         </header>
 
         <div id="form-secours" class="shadow p-4 bg-light rounded overflow-y-scroll" style="height: 50rem; width: 50rem; margin-left: 23rem;">
-            <form>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="matricule" class="form-label">Matricule du defunt(e) :</label>
-                        <input v-model="imDefunt" type="text" class="form-control">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="name" class="form-label">Nom et Prenoms du defunt(e) :</label>
-                        <input v-model="nomDefunt" type="text" class="form-control">
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label for="grade" class="form-label">Grade :</label>
-                        <input v-model="grade" type="text" class="form-control" style="width: 10rem;">
-                    </div>
-                    <div class="col-md-4">
-                        <label for="categorie" class="form-label">Categorie :</label>
-                        <input v-model="categorie" type="text" class="form-control" style="width: 10rem;">
-                    </div>
-                    <div class="col-md-4">
-                        <label for="indice" class="form-label">Indice :</label>
-                        <input v-model="indice" type="text" class="form-control" style="width: 10rem;">
-                    </div>
-
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="budget" class="form-label">Budget :</label>
-                        <input v-model="budget" type="text" class="form-control">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="imputation" class="form-label">Imputation budgétaire :</label>
-                        <input v-model="imputation" type="text" class="form-control">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label for="benefic" class="form-label">Nom et Prénoms du bénéficiaire :</label>
-                        <input v-model="beneficiaire" type="text" class="form-control">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6 ms">
-                        <label for="cin" class="form-label">CIN du bénéficiaire :</label>
-                        <input v-model="cin" type="text" class="form-control">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="datecin" class="form-label">Délivré le :</label>
-                        <input v-model="datecin" type="date" class="form-control">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label for="adresse" class="form-label">Adresse du bénéficiaire :</label>
-                        <input v-model="domicile" type="text" class="form-control">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label for="dateacte" class="form-label">Date de décès :</label>
-                        <input v-model="dateDec" type="date" class="form-control" style="width: 10rem;">
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="acte" class="form-label">Acte de décès n° :</label>
-                        <input v-model="acte" type="text" class="form-control" style="width: 10rem;">
-                    </div>
-                    <div class="col-md-4">
-                        <label for="dateacte" class="form-label">du :</label>
-                        <input v-model="dateActe" type="date" class="form-control" style="width: 10rem;">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label for="nature" class="form-label">Qualité du bénéficiaire :</label>
-                        <select v-model="statut" class="form-select" style="width: 20rem;">
-                            <option value="veuf">veuf</option>
-                            <option value="veuve">veuve</option>
-                            <option value="veuf et tuteur d’un enfant mineur">veuf et tuteur d’un enfant mineur</option>
-                            <option value="veuve et tutrice d’un enfant mineur">veuve et tutrice d’un enfant mineur</option>
-                            <option value="veuf et tuteur des enfants mineurs">veuf et tuteur des enfants mineurs</option>
-                            <option value="veuve et tutrice des enfants mineurs">veuve et tutrice des enfants mineurs</option>
-                            <option value="tuteur d'un enfant mineur">tuteur d'un enfant mineur</option>
-                            <option value="tutrice d'un enfant mineur">tutrice d'un enfant mineur</option>
-                            <option value="tuteur des enfants mineurs">tuteur des enfants mineurs</option>
-                            <option value="tutrice des enfants mineurs">tutrice des enfants mineurs</option>
-                        </select>
-                    </div>
-                </div>
-
+            <form @submit.prevent="addSecours">
                 <div class="row mb-3">
                     <div class="col-md-8">
                         <div class="form-check form-check-inline">
@@ -140,9 +45,151 @@
                         <input v-model="nbLit" v-if="plusieursLit" type="text" class="form-control" style="width: 40px; height: 25px">
                     </div>
                 </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="matricule" class="form-label">Matricule du defunt(e) :</label>
+                        <input v-model="imDefunt" type="text" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Nom et Prenoms du defunt(e) :</label>
+                        <input v-model="nomDefunt" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="grade" class="form-label">Grade :</label>
+                        <input v-model="grade" type="text" class="form-control" style="width: 10rem;">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="categorie" class="form-label">Categorie :</label>
+                        <input v-model="categorie" type="text" class="form-control" style="width: 10rem;">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="indice" class="form-label">Indice :</label>
+                        <input v-model="indice" type="text" class="form-control" style="width: 10rem;">
+                    </div>
+
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="budget" class="form-label">Budget :</label>
+                        <input v-model="budget" type="text" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="imputation" class="form-label">Imputation budgétaire :</label>
+                        <input v-model="imputation" type="text" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row mb-3" v-if="this.activite === 'Retraité'">
+                    <div class="col-md-2">
+                        <label for="budget" class="form-label">600 :</label>
+                        <input v-model="v600" type="number" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="imputation" class="form-label">601 :</label>
+                        <input v-model="v601" type="number" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="imputation" class="form-label">602 :</label>
+                        <input v-model="v602" type="number" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="imputation" class="form-label">603 :</label>
+                        <input v-model="v603" type="number" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="imputation" class="form-label">604 :</label>
+                        <input v-model="v604" type="number" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="imputation" class="form-label">605 :</label>
+                        <input v-model="v605" type="number" class="form-control">
+                    </div>
+                </div>
+
+                
+                <div class="row mb-3" v-if="this.activite === 'Retraité'">
+                    <div class="col-md-2">
+                        <label for="budget" class="form-label">606 :</label>
+                        <input v-model="v606" type="number" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="imputation" class="form-label">607 :</label>
+                        <input v-model="v607" type="number" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="imputation" class="form-label">608 :</label>
+                        <input v-model="v608" type="number" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="imputation" class="form-label">609 :</label>
+                        <input v-model="v609" type="number" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="imputation" class="form-label">610 :</label>
+                        <input v-model="v610" type="number" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="benefic" class="form-label">Nom et Prénoms du bénéficiaire :</label>
+                        <input v-model="beneficiaire" type="text" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="nature" class="form-label">Qualité du bénéficiaire :</label>
+                        <select v-model="statut" class="form-select" style="width: 20rem;">
+                            <option value="veuf">veuf</option>
+                            <option value="veuve">veuve</option>
+                            <option value="veuf et tuteur d’un enfant mineur">veuf et tuteur d’un enfant mineur</option>
+                            <option value="veuve et tutrice d’un enfant mineur">veuve et tutrice d’un enfant mineur</option>
+                            <option value="veuf et tuteur des enfants mineurs">veuf et tuteur des enfants mineurs</option>
+                            <option value="veuve et tutrice des enfants mineurs">veuve et tutrice des enfants mineurs</option>
+                            <option value="tuteur d'un enfant mineur">tuteur d'un enfant mineur</option>
+                            <option value="tutrice d'un enfant mineur">tutrice d'un enfant mineur</option>
+                            <option value="tuteur des enfants mineurs">tuteur des enfants mineurs</option>
+                            <option value="tutrice des enfants mineurs">tutrice des enfants mineurs</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6 ms">
+                        <label for="cin" class="form-label">CIN du bénéficiaire :</label>
+                        <input v-model="cin" type="text" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="datecin" class="form-label">Délivré le :</label>
+                        <input v-model="datecin" type="date" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="adresse" class="form-label">Adresse du bénéficiaire :</label>
+                        <input v-model="domicile" type="text" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="dateacte" class="form-label">Date de décès :</label>
+                        <input v-model="dateDec" type="date" class="form-control" style="width: 10rem;">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="acte" class="form-label">Acte de décès n° :</label>
+                        <input v-model="acte" type="text" class="form-control" style="width: 10rem;">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="dateacte" class="form-label">du :</label>
+                        <input v-model="dateActe" type="date" class="form-control" style="width: 10rem;">
+                    </div>
+                </div>
 
                 <div class="d-flex justify-content-end mt-4">
-                    <button type="button" class="btn btn-success me-5" @click="generateDecision">Aperçu de la décision</button>
+                    <button type="submit" class="btn btn-success me-5" @click="generateDecision">Aperçu de la décision</button>
                     <button type="button" class="btn btn-success" @click="generateED">Aperçu de l'ED</button>
                 </div>
             </form>
@@ -267,8 +314,55 @@
                                     <p>En application {{ decret }} {{ titre }} {{ beneficiaire }} obtient en tant que {{ statut }} un secours au décès,
                                         au montant d' <strong>Ar {{ montant  }}</strong><br>
                                         &lt;&lt; {{ this.nombreEnLettre(montant).toUpperCase()  }} &gt;&gt;<br>
-                                        <strong v-if="!plusieursLit">{{ v500 }} + {{ v501 }} + {{ v502 }} + {{ v503 }} + {{ v506 }}) * {{ multi }} = {{ montant }}</strong>
-                                        <strong v-else>[ ( {{ v500 }} + {{ v501 }} + {{ v502 }} + {{ v503 }} + {{ v506 }}) * {{ multi }} ] / {{ nbLit }}= {{ montant }}</strong>
+                                        <strong v-if="activite == 'En activité' && !plusieursLit">(
+                                        <b v-if="v500 > 0">{{ v500 }} + </b>
+                                        <b v-if="v501 > 0">{{ v501 }} + </b>
+                                        <b v-if="v502 > 0">{{ v502 }} + </b>
+                                        <b v-if="v503 > 0">{{ v503 }} + </b>
+                                        <b v-if="v506 > 0">{{ v506 }}</b>
+                                        * {{ multi }}) = {{ montant }}
+                                        </strong>
+
+                                        <strong v-if="activite == 'En activité' && plusieursLit">
+                                        [ ( 
+                                        <b v-if="v500 > 0">{{ v500 }} + </b>
+                                        <b v-if="v501 > 0">{{ v501 }} + </b>
+                                        <b v-if="v502 > 0">{{ v502 }} + </b>
+                                        <b v-if="v503 > 0">{{ v503 }} + </b>
+                                        <b v-if="v506 > 0">{{ v506 }}</b>
+                                         * {{ multi }})  / {{ nbLit }} ] = {{ montant }}
+                                        </strong>
+
+                                        <strong v-if="activite == 'Retraité' && !plusieursLit">(
+                                        <b v-if="v600 > 0">{{ v600 }} + </b>
+                                        <b v-if="v601 > 0">{{ v601 }} + </b>
+                                        <b v-if="v602 > 0">{{ v602 }} + </b>
+                                        <b v-if="v603 > 0">{{ v603 }} + </b>
+                                        <b v-if="v604 > 0">{{ v604 }} + </b>
+                                        <b v-if="v605 > 0">{{ v605 }} + </b>
+                                        <b v-if="v606 > 0">{{ v606 }} + </b>
+                                        <b v-if="v607 > 0">{{ v607 }} + </b>
+                                        <b v-if="v608 > 0">{{ v608 }} + </b>
+                                        <b v-if="v609 > 0">{{ v609 }} + </b>
+                                        <b v-if="v610 > 0">{{ v610 }}</b>
+                                         * {{ multi }}) = {{ montant }}
+                                        </strong>
+
+                                        <strong v-if="activite == 'Retraité' && plusieursLit">
+                                        [(
+                                        <b v-if="v600 > 0">{{ v600 }} + </b>
+                                        <b v-if="v601 > 0">{{ v601 }} + </b>
+                                        <b v-if="v602 > 0">{{ v602 }} + </b>
+                                        <b v-if="v603 > 0">{{ v603 }} + </b>
+                                        <b v-if="v604 > 0">{{ v604 }} + </b>
+                                        <b v-if="v605 > 0">{{ v605 }} + </b>
+                                        <b v-if="v606 > 0">{{ v606 }} + </b>
+                                        <b v-if="v607 > 0">{{ v607 }} + </b>
+                                        <b v-if="v608 > 0">{{ v608 }} + </b>
+                                        <b v-if="v609 > 0">{{ v609 }} + </b>
+                                        <b v-if="v610 > 0">{{ v610 }}</b>
+                                        ) * {{ multi }}] / {{ nbLit }} = {{ montant }}
+                                        </strong>
                                          égal à {{ nombreEnLettre2(multi) }} mois de la <span v-if="this.activite === 'Retraité'">pension</span><span v-else>solde</span>  du défunt {{ nomDefunt }} ,
                                         matricule {{ imDefunt }} Décédé le {{ formatDate(dateDec) }} suivant l'acte de décès N° {{ acte }} du {{ formatDate(dateActe) }}
                                     </p>
@@ -399,6 +493,17 @@ export default {
     v502: 0,
     v503: 0,
     v506: 0,
+    v600: 0,
+    v601: 0,
+    v602: 0,
+    v603: 0,
+    v604: 0,
+    v605: 0,
+    v606: 0,
+    v607: 0,
+    v608: 0,
+    v609: 0,
+    v610: 0,
     dateDec: "",
     acte: "",
     dateActe: "",
@@ -459,9 +564,35 @@ computed: {
     return 3; // Assurez-vous de gérer tous les cas
   },
 
-  montantMens(){
-    return this.activite === 'En activité' ? (this.v500 + this.v501 + this.v502 + this.v503 + this.v506).toFixed(2) : this.pension
-  },
+montantMens() {
+  if (this.activite === 'En activité') {
+    // Vérifie que les valeurs existent ou sinon utilise 0 par défaut
+    return (
+      (this.v500 || 0) + 
+      (this.v501 || 0) + 
+      (this.v502 || 0) + 
+      (this.v503 || 0) + 
+      (this.v506 || 0)
+    ).toFixed(2);
+  } else {
+
+    console.log('Retraité - valeurs:', this.v600, this.v601, this.v602, this.v603, this.v604, this.v605, this.v606, this.v607, this.v608, this.v609, this.v610);
+    return (
+      (this.v600 || 0) + 
+      (this.v601 || 0) + 
+      (this.v602 || 0) + 
+      (this.v603 || 0) + 
+      (this.v604 || 0) + 
+      (this.v605 || 0) + 
+      (this.v606 || 0) + 
+      (this.v607 || 0) + 
+      (this.v608 || 0) + 
+      (this.v609 || 0) + 
+      (this.v610 || 0)
+    ).toFixed(2);
+  }
+},
+
 
   montant() {
     if(!this.plusieursLit){
@@ -548,8 +679,11 @@ methods: {
 
 
     async generateED() {
-    await this.fetchBareme(this.categorie, this.indice); // Attendez que fetchBareme soit terminé
 
+    if(this.activite == "En activité"){
+        await this.fetchBareme(this.categorie, this.indice); // Attendez que fetchBareme soit terminé
+    }
+ 
       // Sélectionner l'élément à convertir en PDF
       const element = this.$refs.ed;
 
@@ -570,7 +704,29 @@ methods: {
           const url = URL.createObjectURL(pdfBlob);
           window.open(url);
         });
-    }
+    },
+
+    async addSecours() {
+        const newSecours = {
+            beneficiaire: this.beneficiaire,
+            qtbeneficiaire: this.statut,
+            matriculedef: this.imDefunt,
+            nomdef: this.nomDefunt,
+            montant: this.montant,
+            cin: this.cin,
+            acte: this.acte,
+            dateacte: this.dateacte,
+        };
+
+        try {
+            const response = await axios.post('http://localhost:3000/api/secours', newSecours);
+            alert(response.data.message); // Affiche le message de succès
+            // Optionnel : Mettre à jour l'affichage ou vider le formulaire ici
+        } catch (error) {
+            console.error('Erreur lors de l\'ajout du dossier:', error);
+            alert('Erreur lors de l\'ajout du dossier');
+        }
+    },
   },
 };
 

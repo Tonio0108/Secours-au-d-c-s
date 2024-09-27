@@ -1,16 +1,19 @@
 <template>
     <div id="welcome">
         <div>
-            <div id="text">
-                <h1>BONJOUR</h1>
-            </div>
-            <div id="cercle">
-                <div class="circle" id="c1"></div>
-                <div class="circle" id="c2"></div>
-                <div class="circle" id="c3"></div>
-                <div class="circle" id="c4"></div>
-                <div class="circle" id="c5"></div>
-            </div> 
+            <Transition>
+                <div id="text">
+                    <h1>BONJOUR</h1>
+                </div>
+            </Transition>   
+                <div id="cercle">
+                    <div class="circle" id="c1"></div>
+                    <div class="circle" id="c2"></div>
+                    <div class="circle" id="c3"></div>
+                    <div class="circle" id="c4"></div>
+                    <div class="circle" id="c5"></div>
+                </div> 
+
         </div>
     </div>
 </template>
@@ -73,4 +76,16 @@ export default {
         background-color: rgb(255, 255, 255);
         transition: background-color 1s ease;
     }
+
+
+/* we will explain what these classes do next! */
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 2s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
 </style>

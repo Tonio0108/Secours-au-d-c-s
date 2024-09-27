@@ -9,6 +9,12 @@ const routes = [
   },
 
   {
+    path: '/pwd',
+    name: 'Password',
+    component: () => import('../components/Pwd.vue')
+  },
+
+  {
     	path: '/welcome',
       name: 'bonjour',
       component: () => import('../components/welcome.vue')

@@ -86,7 +86,7 @@
                         Décision et ED
                 </button>
             <div class="dropdown-menu" aria-labelledby="triggerId">
-                <button @click="decision">Pour l'agent recherché</button>
+                <button class="dropdown-item" @click="decision">Pour l'agent recherché</button>
                 <RouterLink  class="dropdown-item" to="/decision">Manuellement</RouterLink>
             </div>
         </div>
@@ -144,7 +144,7 @@
             this.$router.push({
                 path: '/decision',
                 query: {
-                nomDefunt: agent.nom || agent.nomprenoms || '', 
+                nomDefunt: (agent.nom && agent.prenoms) ? agent.nom + ' ' + agent.prenoms : (agent.nomprenoms || agent.nom || ''),
                 imDefunt: agent.matricule || agent.matriculepension || '', 
                 grade: agent.codegrade || '',
                 categorie: agent.codecategorie || '',

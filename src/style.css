@@ -204,3 +204,7 @@ label{
   text-align: start;
   padding-left: 4rem;
 }
+
+.col-md-2 .form-control{
+  width: 6rem;
+}
