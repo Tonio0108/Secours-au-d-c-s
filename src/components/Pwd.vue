@@ -14,23 +14,25 @@
                 
                 <form @submit.prevent="connect">
                     <h6 style="margin-top: 1rem;">ancien mot de passe:</h6>
-                    <input v-model="oldPass" :type="showPassword ? 'text' : 'password'" :class="classname">
+                    <input v-model="oldPass" :type="showPassword ? 'text' : 'password'" :class="classname1">
                     <p class=" text-danger mt-2">{{ alert }}</p>
                     <button @click="togglePassword1" type="button" class="toggle-btn2">
                         <font-awesome-icon :icon="showPassword ? 'eye-slash' : 'eye'" />
                     </button>
                     <h6 style="margin-top: 0;">nouveau mot de passe:</h6>
-                    <input v-model="newPass" :type="showPassword2 ? 'text' : 'password'" :class="classname">
-                    <p class=" text-danger mt-2">{{ alert2 }}</p>
+                    <input v-model="newPass" :type="showPassword2 ? 'text' : 'password'" :class="classname2">
+
                     <button @click="togglePassword2" type="button" class="toggle-btn3">
                         <font-awesome-icon :icon="showPassword2 ? 'eye-slash' : 'eye'" />
                     </button>
+                    <p class=" text-danger mt-2">{{ alert2 }}</p>
                     <h6 style="margin-top: 0;">confirmez le mot de passe:</h6>
-                    <input v-model="newPass" :type="showPassword3 ? 'text' : 'password'" :class="classname">
-                    <button @click="togglePassword2" type="button" class="toggle-btn3">
+                    <input v-model="newPass2" :type="showPassword3 ? 'text' : 'password'" :class="classname2">
+                    <button @click="togglePassword3" type="button" class="toggle-btn4">
                         <font-awesome-icon :icon="showPassword3 ? 'eye-slash' : 'eye'" />
                     </button>
-                    <button type="button" @click="connect" class="btn btn-success">changer</button>
+                    <button type="button" @click="change" class="btn btn-success mt-3">changer</button>
+                    <RouterLink to="/" class="btn btn-danger mt-3 ms-4">annuler</RouterLink>
                 </form>
             </div>
        </div>
@@ -39,6 +41,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 
     export default{
         data(){
@@ -48,35 +51,54 @@
                 newPass2:'',
                 alert:'',
                 alert2:'',
-                classname: 'form-control',
+                classname1: 'form-control',
+                classname2: 'form-control',
                 showPassword:false,
                 showPassword2:false,
                 showPassword3:false,
             }
         },
-        methods:{
+        methods: {
+    togglePassword1() {
+        this.showPassword = !this.showPassword;
+    },
+    togglePassword2() {
+        this.showPassword2 = !this.showPassword2;
+    },
+    togglePassword3() {
+        this.showPassword3 = !this.showPassword3;
+    },
+    async change() {
+    // Vérifiez si les mots de passe sont corrects
+    if (this.oldPass === '') {
+        this.alert = 'Veuillez entrer votre ancien mot de passe.';
+        this.classname1 = 'form-control border-danger';
+        return;
+    }
+    
+    if (this.newPass !== this.newPass2) {
+        this.alert2 = 'Vous avez entré deux mots de passe différents !';
+        this.classname2 = 'form-control border-danger';
+        return;
+    }
+    
+    try {
+        const response = await axios.post('http://localhost:3000/api/change-password', {
+            oldPass: this.oldPass,
+            newPass: this.newPass
+        });
+        alert(response.data.message); // Affichez le message de succès
+        this.$router.push({ path: '/' }); // Redirigez l'utilisateur après le changement
+    } catch (error) {
+        console.error('Erreur lors de l\'appel API:', error); // Pour déboguer
+        this.alert = error.response?.data?.message ?? 'Erreur lors du changement de mot de passe.'; // Utilisez la coalescence nulle
+        this.classname1 = 'form-control border-danger'; // Ajoutez une classe d'erreur
+    }
+}
 
-            togglePassword1() {
-                this.showPassword = !this.showPassword;
-            },
-            togglePassword2() {
-                this.showPassword2 = !this.showPassword2;
-            },
-            togglePassword3() {
-                this.showPassword3 = !this.showPassword3;
-            },
-            connect(){
-                if(this.passwordIn !== '123456'){
-                    this.alert = 'mot de passe incorrect !!'
-                    this.classname = 'form-control border-danger'
-                }else{
-                    this.$router.push({
-                        path: '/welcome'
-                    })
-                }
-            }
+}
 
-        }
+
     }
 </script>
 
@@ -85,7 +107,7 @@
 .toggle-btn2 {
   position: absolute;
   right: 20%;
-  top: 42%;
+  top: 40.5%;
   transform: translateY(-50%);
   background-color: transparent;
   border: none;
@@ -97,7 +119,19 @@
 .toggle-btn3 {
   position: absolute;
   right: 20%;
-  top: 53%;
+  top: 51.5%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #ffffff;
+}
+
+.toggle-btn4 {
+  position: absolute;
+  right: 20%;
+  top: 62.5%;
   transform: translateY(-50%);
   background-color: transparent;
   border: none;
