@@ -22,25 +22,27 @@
 
         <button id="import" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importEx">Importer excel</button>
 
-        <!-- Modal d'importation -->
-        <div class="modal fade" id="importEx" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Importer un fichier excel</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form @submit.prevent="handleImport">
-                            <input type="file" class="form-control mb-3" @change="handleFileUpload">
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-success">Importer</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+      <!-- Modal pour importer un fichier -->
+      <div class="modal fade" id="importEx" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Importer un fichier Excel</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
             </div>
+            <div class="modal-body">
+              <form @submit.prevent="this.status == 'activite'? uploadAgent() : uploadRetraite()">
+                <input type="file" class="form-control mb-3" @change="handleFileUpload" accept=".xlsx, .xls" required>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-success" :disabled="!file">Importer</button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Tableau pour les agents en activité -->
@@ -112,6 +114,11 @@
             </tbody>
         </table>
     </div>
+
+      <!-- Message de Notification -->
+    <div v-if="message" :class="`alert ${messageType}`" role="alert">
+        {{ message }}
+    </div>
 </template>
 
 <script>
@@ -126,19 +133,24 @@ export default {
             resultActive:[],
             resultRetraite:[],
             recherche:'',
+            file: null,
+            message: "", 
+            messageType: "", 
         };
     },
     methods: {
 
+        //Formater les dates en DD/MM/YY avec le mois en lettre
         formatDate(dateString) {
             const date = new Date(dateString);
             return date.toLocaleDateString('fr-FR', {
                 day: '2-digit',
-                month: 'long',  // ou '2-digit' pour des chiffres
+                month: 'long', 
                 year: 'numeric'
             });
         },
 
+        // recuperer les agent en activité
         async fetchActive() {
             try {
                 const active = await axios.get('http://localhost:3000/api/agent/active');
@@ -148,6 +160,8 @@ export default {
                 console.log(error);
             }
         },
+
+        //recuperer les agents en retraite
         async fetchRetraite() {
             try {
                 const retraite = await axios.get('http://localhost:3000/api/agent/retraite');
@@ -158,6 +172,7 @@ export default {
             }
         },
 
+        //rechercher un agent en activité
         async searchActive() {
             if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                 try {
@@ -172,6 +187,7 @@ export default {
             }
         },
 
+        //rechercher un agent retraité
         async searchRetraite() {
             if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                 try {
@@ -189,8 +205,92 @@ export default {
         formatNumber(number) {
             return number.toLocaleString(); // Formate le nombre avec un séparateur de milliers
         },
+
+        handleFileUpload(event) {
+        const selectedFile = event.target.files[0];
+        if (selectedFile && (selectedFile.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || selectedFile.type === "application/vnd.ms-excel")) {
+          this.file = selectedFile;
+        } else {
+          this.showMessage("Veuillez sélectionner un fichier Excel valide.", "alert-danger");
+          this.file = null;
+        }
+      },
+  
+      async uploadAgent() {
+        if (!this.file) {
+          this.showMessage("Veuillez sélectionner un fichier avant d'importer.", "alert-danger");
+          return;
+        }
+  
+        const formData = new FormData();
+        formData.append("file", this.file);
+  
+        try {
+          const response = await axios.post("http://localhost:3000/agent/active/upload", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+  
+          this.showMessage(response.data.message, "alert-success");
+          this.file = null; // Réinitialiser le fichier après importation réussie
+  
+          // Fermer la modal après un court délai
+          setTimeout(() => {
+            const importModal = new bootstrap.Modal(document.getElementById('importEx'));
+            importModal.hide();
+          }, 1000);
+  
+        } catch (error) {
+          console.error("Erreur lors de l'importation du fichier :", error.message);
+          this.showMessage("Erreur lors de l'importation du fichier.", "alert-danger");
+        }
+      },
+
+      async uploadRetraite() {
+        if (!this.file) {
+          this.showMessage("Veuillez sélectionner un fichier avant d'importer.", "alert-danger");
+          return;
+        }
+  
+        const formData = new FormData();
+        formData.append("file", this.file);
+  
+        try {
+          const response = await axios.post("http://localhost:3000/agent/retraite/upload", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+  
+          this.showMessage(response.data.message, "alert-success");
+          this.file = null; // Réinitialiser le fichier après importation réussie
+  
+          // Fermer la modal après un court délai
+          setTimeout(() => {
+            const importModal = new bootstrap.Modal(document.getElementById('importEx'));
+            importModal.hide();
+          }, 1000);
+  
+        } catch (error) {
+          console.error("Erreur lors de l'importation du fichier :", error.message);
+          this.showMessage("Erreur lors de l'importation du fichier.", "alert-danger");
+        }
+      },
+  
+      showMessage(msg, type) {
+        this.message = msg;
+        this.messageType = type;
+
+        // Masquer le message après 5 secondes
+        setTimeout(() => {
+          this.message = "";
+          this.messageType = "";
+        }, 5000);
+      },
     },
     watch: {
+        // watcher sur les valeur du type radio du formulaire
         status(newStatus) {
             if (newStatus === 'activite') {
                 this.fetchActive();
@@ -200,7 +300,19 @@ export default {
         }
     },
     created() {
+        // appel des fonction une fos la page est chargée
         this.fetchActive();
+        this.fetchRetraite();
     }
 };
 </script>
+
+  <style scoped>
+
+  .alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+  }
+  </style>

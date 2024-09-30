@@ -1,6 +1,6 @@
 
 <template>
-  <header class="" style="width: 100%;">
+  <header style="width: 100%;">
     <h3 id="title">Statistique</h3>
     <img id="logo2" src="../assets/Logo_hd_MEF-PETIT-2.png" alt="" width="130px" height="80px">
   </header>
@@ -91,9 +91,6 @@ export default {
     },
   },
   methods: {
-    formatNumber(number) {
-      return number.toLocaleString(); // Formate le nombre avec un séparateur de milliers
-    },
     async countActive() {
       try {
         const res = await axios.get('http://localhost:3000/api/stat/active');
@@ -124,11 +121,11 @@ export default {
     },
     async courbe() {
     try {
-      // 1. Récupérer les données depuis l'API
+      // Récupérer les données depuis l'API
       const response = await fetch('http://localhost:3000/api/stat/month');
       const result = await response.json();
 
-      // 2. Extraire les valeurs des dossiers traités (nombre)
+      // Extraire les valeurs des dossiers traités (nombre)
       const dataFromAPI = result.map(item => item.nombre); // Tableau des nombres par mois
 
       const labels = ['Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet','Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
@@ -136,7 +133,7 @@ export default {
         labels: labels,
         datasets: [{
           label: 'Dossiers traités',
-          data: dataFromAPI, // Remplacer par tes données réelles
+          data: dataFromAPI,
           fill: false,
           borderColor: 'rgb(75, 192, 192)',
           tension: 0.1
@@ -144,6 +141,8 @@ export default {
       };
 
       const ctx = document.getElementById('courbe').getContext('2d');
+
+      //instance de chartJs pour le graph
       new Chart(ctx, {
         type: 'line',
         data: data,
@@ -163,6 +162,8 @@ export default {
 
   },
   mounted() {
+
+    //appel des methodes une fois que le composant est monté
   this.countActive()
   this.countRetraite()
   this.countDossiers()

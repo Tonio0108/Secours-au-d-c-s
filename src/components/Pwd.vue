@@ -88,11 +88,10 @@ import axios from 'axios';
             newPass: this.newPass
         });
         alert(response.data.message); // Affichez le message de succès
-        this.$router.push({ path: '/' }); // Redirigez l'utilisateur après le changement
+        this.$router.push({ path: '/' }); // Redirigez vers la page login après le changement
     } catch (error) {
-        console.error('Erreur lors de l\'appel API:', error); // Pour déboguer
-        this.alert = error.response?.data?.message ?? 'Erreur lors du changement de mot de passe.'; // Utilisez la coalescence nulle
-        this.classname1 = 'form-control border-danger'; // Ajoutez une classe d'erreur
+        this.alert = error.response?.data?.message ?? 'Erreur lors du changement de mot de passe.';
+        this.classname1 = 'form-control border-danger';
     }
 }
 

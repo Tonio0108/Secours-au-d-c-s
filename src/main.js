@@ -3,6 +3,7 @@ import './style.css'
 import App from './App.vue'
 import router from './router/router'
 import bootstrap from 'bootstrap/dist/js/bootstrap'
+import '../node_modules/bootstrap-icons/font/bootstrap-icons.css'
 // Import de FontAwesome et des icônes nécessaires
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'; // Importer les icônes spécifiques

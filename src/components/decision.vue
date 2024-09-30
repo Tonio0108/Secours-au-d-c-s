@@ -48,25 +48,30 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="matricule" class="form-label">Matricule du defunt(e) :</label>
-                        <input v-model="imDefunt" type="text" class="form-control">
+                        <input  v-model="imDefunt" type="text" class="form-control">
                     </div>
                     <div class="col-md-6">
                         <label for="name" class="form-label">Nom et Prenoms du defunt(e) :</label>
-                        <input v-model="nomDefunt" type="text" class="form-control">
+                        <input :class="class" v-model="nomDefunt" type="text" class="form-control">
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="grade" class="form-label">Grade :</label>
                         <input v-model="grade" type="text" class="form-control" style="width: 10rem;">
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="categorie" class="form-label">Categorie :</label>
                         <input v-model="categorie" type="text" class="form-control" style="width: 10rem;">
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="indice" class="form-label">Indice :</label>
                         <input v-model="indice" type="text" class="form-control" style="width: 10rem;">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="indice" class="form-label">Année du bareme utilisé :</label>
+                        <input v-model="dateBar" type="text" class="form-control" style="width: 10rem;">
                     </div>
 
                 </div>
@@ -135,11 +140,11 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="benefic" class="form-label">Nom et Prénoms du bénéficiaire :</label>
-                        <input v-model="beneficiaire" type="text" class="form-control">
+                        <input :class="class" v-model="beneficiaire" type="text" class="form-control">
                     </div>
                     <div class="col-md-6">
                         <label for="nature" class="form-label">Qualité du bénéficiaire :</label>
-                        <select v-model="statut" class="form-select" style="width: 20rem;">
+                        <select :class="class" v-model="statut" class="form-select" style="width: 20rem;">
                             <option value="veuf">veuf</option>
                             <option value="veuve">veuve</option>
                             <option value="veuf et tuteur d’un enfant mineur">veuf et tuteur d’un enfant mineur</option>
@@ -175,16 +180,16 @@
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label for="dateacte" class="form-label">Date de décès :</label>
-                        <input v-model="dateDec" type="date" class="form-control" style="width: 10rem;">
+                        <input :class="class" v-model="dateDec" type="date" class="form-control" style="width: 10rem;">
                     </div>
 
                     <div class="col-md-4">
                         <label for="acte" class="form-label">Acte de décès n° :</label>
-                        <input v-model="acte" type="text" class="form-control" style="width: 10rem;">
+                        <input v-model="acte" type="text" class="form-control" :class="class" style="width: 10rem;">
                     </div>
                     <div class="col-md-4">
                         <label for="dateacte" class="form-label">du :</label>
-                        <input v-model="dateActe" type="date" class="form-control" style="width: 10rem;">
+                        <input v-model="dateActe" type="date" class="form-control" :class="class" style="width: 10rem;">
                     </div>
                 </div>
 
@@ -484,8 +489,8 @@ export default {
     imputation: this.$route.query.imputation || "",
     grade: this.$route.query.grade || "",
     indice: this.$route.query.indice || "",
-    beneficiaire: "",
-    cin: "",
+    beneficiaire: this.$route.query.beneficiaire || "",
+    cin: this.$route.query.cin || "",
     datecin: "",
     domicile: "",
     v500: 0,
@@ -504,16 +509,17 @@ export default {
     v608: 0,
     v609: 0,
     v610: 0,
-    dateDec: "",
-    acte: "",
-    dateActe: "",
-    statut: "",
+    dateDec: this.$route.query.dateDec|| "",
+    acte: this.$route.query.acte || "",
+    dateActe: this.$route.query.dateActe || "",
+    statut: this.$route.query.qtbeneficiaire || "",
     plusieursLit: false,
     activite: "",
     fonction: "",
     nbLit: 0,
-    pension: this.$route.query.pension || 0,
     categorie:'',
+    dateBar:'',
+    class:''
   };
 },
 
@@ -620,9 +626,9 @@ methods: {
             });
         },
 
-        async fetchBareme(categorie, indice) {
+        async fetchBareme(categorie, indice,annee) {
             try {
-                const response = await axios.get(`http://localhost:3000/api/bareme/${categorie}/${indice}`);
+                const response = await axios.get(`http://localhost:3000/api/bareme/${categorie}/${indice}/${annee}`);
                 let bareme = response.data;
                 console.log('Données reçues:', bareme); // Ajoutez ce log pour voir la structure de bareme
 
@@ -657,7 +663,11 @@ methods: {
     },
 
     async generateDecision() {
-        await this.fetchBareme(this.categorie, this.indice); // Attendez que fetchBareme soit terminé
+
+        if(this.beneficiaire !== '' && this.nomDefunt !== '' && this.statut !== '' && this.dateDec !== '' && this.acte !== '' && this.dateActe !== '' ){
+            if(this.activite == "En activité"){
+                await this.fetchBareme(this.categorie, this.indice, this.dateBar); // Attendez que fetchBareme soit terminé
+            }
 
         const element = this.$refs.decision;
         const options = {
@@ -675,13 +685,17 @@ methods: {
             const url = URL.createObjectURL(pdfBlob);
             window.open(url);
             });
+        }else{
+            this.class = 'border-danger'
+        }
         },
 
 
     async generateED() {
 
+    if(this.beneficiaire !== '' && this.nomDefunt !== '' && this.statut !== '' && this.dateDec !== '' && this.acte !== '' ){
     if(this.activite == "En activité"){
-        await this.fetchBareme(this.categorie, this.indice); // Attendez que fetchBareme soit terminé
+        await this.fetchBareme(this.categorie, this.indice, this.dateBar); // Attendez que fetchBareme soit terminé
     }
  
       // Sélectionner l'élément à convertir en PDF
@@ -704,6 +718,7 @@ methods: {
           const url = URL.createObjectURL(pdfBlob);
           window.open(url);
         });
+    }
     },
 
     async addSecours() {
@@ -717,7 +732,7 @@ methods: {
             acte: this.acte,
             dateacte: this.dateacte,
         };
-
+        if(this.beneficiaire !== '' && this.nomDefunt !== '' && this.statut !== '' && this.dateDec !== '' && this.acte !== '' ){
         try {
             const response = await axios.post('http://localhost:3000/api/secours', newSecours);
             alert(response.data.message); // Affiche le message de succès
@@ -726,6 +741,7 @@ methods: {
             console.error('Erreur lors de l\'ajout du dossier:', error);
             alert('Erreur lors de l\'ajout du dossier');
         }
+    }
     },
   },
 };

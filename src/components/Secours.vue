@@ -92,6 +92,42 @@
         </div>
     </div>
 
+        <!-- Tableau pour les secours -->
+        <div id="tableau" class="overflow-scroll" style="height: 25rem; width: 163vh;">
+        <table class="table table-striped text-center">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Bénéficiaire</th>
+                    <th>CIN</th>
+                    <th>En tant que</th>
+                    <th>De la defunt(e)</th>
+                    <th>IM</th>
+                    <th>Décédé le</th>
+                    <th>Acte de décès N°</th>
+                    <th>Du</th>
+                    <th>Montant du secours au décès</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="secours in list" :key="secours.numero">
+                    <td>{{ formatDate(secours.date) }}</td>
+                    <td>{{ secours.beneficiaire }}</td>
+                    <td>{{ secours.cin }}</td>
+                    <td>{{ secours.qtbeneficiaire }}</td>
+                    <td>{{ secours.nomdef }}</td>
+                    <td>{{ secours.matriculedef }}</td>
+                    <td>{{ secours.datedec }}</td>
+                    <td>{{ secours.acte }}</td>
+                    <td>{{ secours.dateacte }}</td>
+                    <td>{{ secours.montant }}</td>
+                    <td><button @click="deleteSecours(secours.matriculedef,secours.beneficiaire,)" class="btn btn-outline-danger"><i class="bi bi-trash"></i></button></td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
 </template>
 
 <script>
@@ -104,10 +140,20 @@
                 resultActive: [],
                 resultRetraite: [],
                 recherche: '',
+                list: [],
             }
         },
         methods:{
 
+            //Formater les dates en DD/MM/YY avec le mois en lettre
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('fr-FR', {
+                    day: '2-digit',
+                    month: 'long', 
+                    year: 'numeric'
+                });
+            },
             async searchActive() {
             if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                 try {
@@ -122,38 +168,77 @@
             }
         },
 
-        async searchRetraite() {
-            if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
-                try {
-                const response = await axios.get(`http://localhost:3000/api/agent/retraite/${this.recherche}`);  // Utilise `this.recherche`
-                this.resultRetraite = response.data;
-                } catch (error) {
-                console.error('Erreur lors de la recherche:', error);
-                this.resultRetraite = [];
+            async searchRetraite() {
+                if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
+                    try {
+                    const response = await axios.get(`http://localhost:3000/api/agent/retraite/${this.recherche}`);  // Utilise `this.recherche`
+                    this.resultRetraite = response.data;
+                    } catch (error) {
+                    console.error('Erreur lors de la recherche:', error);
+                    this.resultRetraite = [];
+                    }
+                } else {
+                    this.resultRetraite = [];  // Vide les résultats si la chaîne est inférieure à 3 caractères
                 }
-            } else {
-                this.resultRetraite = [];  // Vide les résultats si la chaîne est inférieure à 3 caractères
+            },
+
+            decision(){
+                const agent = this.resultActive[0] || this.resultRetraite[0];
+                console.log(agent)
+
+                // Rediriger vers /decision avec des données pré-remplies
+                this.$router.push({
+                    path: '/decision',
+                    query: {
+                    nomDefunt: (agent.nom && agent.prenoms) ? agent.nom + ' ' + agent.prenoms : (agent.nomprenoms || agent.nom || ''),
+                    imDefunt: agent.matricule || agent.matriculepension || '', 
+                    grade: agent.codegrade || '',
+                    categorie: agent.codecategorie || '',
+                    indice:agent.indice || '',
+                    imputation: agent.codesection || '',
+                    pension:agent.pensionnet || ''
+                    },
+                });
+            },
+            async fetchSecours(){
+                try{
+                    const res = await axios.get('http://localhost:3000/api/secours/list')
+                    this.list = res.data
+                    console.log(this.list)
+                }catch(err){
+                    console.error('Erreur lors de la recherche:', err);
+                    this.list = [];
+                }
+            },
+
+            async deleteSecours(matriculedef, beneficiaire) {
+                try {
+                // Confirmation de la suppression
+                const confirmation = confirm("Êtes-vous sûr de vouloir supprimer ce dossier ?");
+                if (!confirmation) return;
+
+                // Envoi de la requête de suppression
+                const response = await axios.delete('http://localhost:3000/api/secours/delete', {
+                    data: {
+                    matriculedef,
+                    beneficiaire
+                    }
+                });
+
+                // Afficher le message de succès
+                alert(response.data.message);
+
+                // Mettre à jour la liste après suppression
+                this.list = this.list.filter(secours => !(secours.matriculedef === matriculedef && secours.beneficiaire === beneficiaire));
+
+                } catch (error) {
+                console.error("Erreur lors de la suppression du dossier :", error);
+                alert("Erreur lors de la suppression du dossier.");
+                }
             }
         },
-
-        decision(){
-            const agent = this.resultActive[0] || this.resultRetraite[0];
-            console.log(agent)
-
-            // Rediriger vers /decision avec des données pré-remplies
-            this.$router.push({
-                path: '/decision',
-                query: {
-                nomDefunt: (agent.nom && agent.prenoms) ? agent.nom + ' ' + agent.prenoms : (agent.nomprenoms || agent.nom || ''),
-                imDefunt: agent.matricule || agent.matriculepension || '', 
-                grade: agent.codegrade || '',
-                categorie: agent.codecategorie || '',
-                indice:agent.indice || '',
-                imputation: agent.codesection || '',
-                pension:agent.pensionnet || ''
-                },
-            });
+        mounted(){
+            this.fetchSecours()
         }
-        },
     }
 </script>

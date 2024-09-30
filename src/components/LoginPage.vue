@@ -27,12 +27,12 @@
 </template>
 
 <script>
-import axios from 'axios'; // Assurez-vous qu'Axios est importé
+import axios from 'axios'; 
 
 export default {
     data() {
         return {
-            passwordIn: '',
+            passwordIn: '',     //variable pour stocker le mot de passe saisi
             alert: '',
             classname: 'form-control',
             showPassword: false
@@ -44,10 +44,12 @@ export default {
         },
         async connect() {
             try {
+                //recuperation du mot de passe dans la base de donnée et comparaison entre le mdp saisi
                 const response = await axios.post('http://localhost:3000/api/login', {
-                password: this.passwordIn // Assure-toi que `passwordIn` contient bien la valeur attendue
+                password: this.passwordIn
                 });
 
+                //rediriger sur la page d'accueil on a la status 200
                 if (response.status === 200) {
                 this.$router.push({
                     path: '/welcome'
@@ -55,10 +57,11 @@ export default {
                 }
             } catch (error) {
                 if (error.response) {
+                    // si le mot da passe est incorrect
                 if (error.response.status === 401) {
-                    this.alert = 'Mot de passe incorrect !!';
                     this.classname = 'form-control border-danger';
                 } else {
+                    // si le serveur ne repond pas
                     this.alert = 'Erreur serveur, réessayez plus tard.';
                     this.classname = 'form-control border-danger';
                 }
