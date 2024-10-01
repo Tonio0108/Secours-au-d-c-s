@@ -312,7 +312,7 @@
                                 <td class="text-center" style="padding-top: 3rem; font-size: 0.9rem;">
                                     <p>{{ titre }} {{ beneficiaire }}</p>
                                     <p>Titulaire du CIN n° {{ cin }}</p>
-                                    <p>du {{ formatDate(datecin) }}</p>
+                                    <p>du {{ this.datecin !== "" ? formatDate(datecin) : ""}}</p>
                                     <p>Domicilé à {{ domicile.toUpperCase() }}</p>
                                 </td>
                                 <td class="text-center" style="padding-top: 2rem; font-size: 0.95rem;">
@@ -369,7 +369,7 @@
                                         ) * {{ multi }}] / {{ nbLit }} = {{ montant }}
                                         </strong>
                                          égal à {{ nombreEnLettre2(multi) }} mois de la <span v-if="this.activite === 'Retraité'">pension</span><span v-else>solde</span>  du défunt {{ nomDefunt }} ,
-                                        matricule {{ imDefunt }} Décédé le {{ formatDate(dateDec) }} suivant l'acte de décès N° {{ acte }} du {{ formatDate(dateActe) }}
+                                        matricule {{ imDefunt }} Décédé le {{ this.dateDec !== "" ? formatDate(dateDec) : "" }} suivant l'acte de décès N° {{ acte }} du {{ this.dateActe !== "" ? formatDate(dateActe) : "" }}
                                     </p>
                                 </td>
                             </tr>
@@ -424,7 +424,7 @@
                         </tr>
                         <tr>
                             <td><b>Décédé le :</b></td>
-                            <td>{{ formatDate(dateDec) }}</td>
+                            <td>{{ this.dateDec !== "" ? formatDate(dateDec) : "" }}</td>
                         </tr>
                         <tr>
                             <td><b>Titulaire de l'IM :</b></td>
@@ -474,6 +474,12 @@
                 </div>
         </div>
 
+        <Transition>
+            <div v-if="message" :class="`alert ${messageType}`" role="alert">
+            {{ message }}
+            </div>
+        </Transition>
+
 </template>
 
 <script>
@@ -483,6 +489,8 @@ import html2pdf from 'html2pdf.js'
 export default {
     data() {
   return {
+    message: "",
+    messageType: "",
     nomDefunt: this.$route.query.nomDefunt || "",
     imDefunt: this.$route.query.imDefunt || "",
     budget: "",
@@ -517,9 +525,9 @@ export default {
     activite: "",
     fonction: "",
     nbLit: 0,
-    categorie:'',
+    categorie: this.$route.query.categorie || '',
     dateBar:'',
-    class:''
+    class:'',
   };
 },
 
@@ -641,10 +649,10 @@ methods: {
                 this.v506 = bareme[0].v506 || 0;
                 console.log('Valeurs mises à jour:', this.v500, this.v501, this.v502, this.v503, this.v506);
                 } else {
-                console.warn('Aucune donnée trouvée dans la réponse.');
+                showMessage('Aucune donnée trouvée dans la réponse.' ,'alert-warning');
                 }
             } catch (error) {
-                console.error('Erreur lors de la récupération des données :', error.message);
+                this.showMessage('Erreur lors de la récupération des données :' + error, 'alert-danger');
             }
         },
 
@@ -735,15 +743,35 @@ methods: {
         if(this.beneficiaire !== '' && this.nomDefunt !== '' && this.statut !== '' && this.dateDec !== '' && this.acte !== '' ){
         try {
             const response = await axios.post('http://localhost:3000/api/secours', newSecours);
-            alert(response.data.message); // Affiche le message de succès
+            this.showMessage(response.data.message, 'alert-success'); // Affiche le message de succès
             // Optionnel : Mettre à jour l'affichage ou vider le formulaire ici
         } catch (error) {
-            console.error('Erreur lors de l\'ajout du dossier:', error);
-            alert('Erreur lors de l\'ajout du dossier');
+            this.showMessage('Erreur lors de l\'ajout du dossier' + error,'alert-danger');
         }
     }
     },
+    showMessage(msg, type) {
+                this.message = msg;
+                this.messageType = type;
+
+                // Masquer le message après 5 secondes
+                setTimeout(() => {
+                this.message = "";
+                this.messageType = "";
+                }, 5000);
+            },
   },
 };
 
 </script>
+
+<style scoped>
+
+.alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+}
+
+</style>

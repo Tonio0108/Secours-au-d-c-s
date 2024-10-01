@@ -572,6 +572,27 @@ app.delete('/api/secours/delete', async (req, res) => {
     }
 });
 
+// Route pour la recherche d'agents retraités
+app.get('/api/secours/recherche/:param', async (req, res) => {
+    try {
+        // Récupération du paramètre de recherche
+        const { param } = req.params;
+
+        // Exécution de la requête SQL avec CONCAT pour gérer les wildcards (%)
+        const result = await pool.query(
+            `SELECT * FROM secours WHERE beneficiaire ILIKE '%' || $1 || '%' OR matriculedef ILIKE '%' || $1 || '%' OR nomdef ILIKE '%' || $1 || '%'`, 
+            [param]
+        );
+
+        // Envoi de la réponse avec les données en format JSON
+        res.setHeader('Content-Type', 'application/json');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erreur du serveur');
+    }
+});
+
 // Démarrer le serveur
 app.listen(port, () => {
     console.log(`Backend server is running on http://localhost:${port}`);

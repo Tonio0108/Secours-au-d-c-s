@@ -7,10 +7,11 @@
 
     <div id="searchBarBarem" class="shadow " style="height: 22rem;">
         <form class="text-center">
-            <h6 class="mt-4">Tapez l'IM ou le nom pour rechercher un agent et appuyez sur entrer :</h6>
+            <h6 class="mt-4">Tapez l'IM ou le nom pour rechercher :</h6>
             <input v-if="status == 'activite'"  v-model="recherche" placeholder="...IM ou nom..." type="text" class="form-control mb-3" @input="searchActive">
-            <input v-else v-model="recherche" placeholder="...IM ou nom..." type="text" class="form-control mb-3" @input="searchRetraite">
-
+            <input v-else-if="status == 'retraite'" v-model="recherche" placeholder="...IM ou nom..." type="text" class="form-control mb-3" @input="searchRetraite">
+            <input v-else v-model="recherche" placeholder="...IM ou nom..." type="text" class="form-control mb-3" @input="searchSecours">
+        
             <div class="form-check form-check-inline">
                 <input type="radio" id="activite" value="activite" v-model="status" class="form-check-input">
                 <label for="activite" class="form-check-label">En activité</label>
@@ -19,6 +20,10 @@
             <div class="form-check form-check-inline">
                 <input type="radio" id="retraite" value="retraite" v-model="status" class="form-check-input">
                 <label for="retraite" class="form-check-label">Retraité</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input type="radio" id="secours" value="secours" v-model="status" class="form-check-input">
+                <label for="secours" class="form-check-label">Secours</label>
             </div>
         </form>
 
@@ -110,7 +115,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="secours in list" :key="secours.numero">
+                <tr v-for="secours in resultSecours.length ? resultSecours : list" :key="secours.numero">
                     <td>{{ formatDate(secours.date) }}</td>
                     <td>{{ secours.beneficiaire }}</td>
                     <td>{{ secours.cin }}</td>
@@ -128,6 +133,12 @@
         </table>
     </div>
 
+      <!-- Message de Notification -->
+      <Transition>
+        <div v-if="message" :class="`alert ${messageType}`" role="alert">
+          {{ message }}
+        </div>
+      </Transition>
 </template>
 
 <script>
@@ -139,8 +150,11 @@
                 status: "activite",
                 resultActive: [],
                 resultRetraite: [],
+                resultSecours:[],
                 recherche: '',
                 list: [],
+                message:'',
+                messageType:'',
             }
         },
         methods:{
@@ -182,6 +196,20 @@
                 }
             },
 
+            async searchSecours() {
+                if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
+                    try {
+                    const response = await axios.get(`http://localhost:3000/api/secours/recherche/${this.recherche}`);  // Utilise `this.recherche`
+                    this.resultSecours = response.data;
+                    } catch (error) {
+                    console.error('Erreur lors de la recherche:', error);
+                    this.resultSecours = [];
+                    }
+                } else {
+                    this.resultSecours = [];  // Vide les résultats si la chaîne est inférieure à 3 caractères
+                }
+            },
+
             decision(){
                 const agent = this.resultActive[0] || this.resultRetraite[0];
                 console.log(agent)
@@ -190,15 +218,17 @@
                 this.$router.push({
                     path: '/decision',
                     query: {
-                    nomDefunt: (agent.nom && agent.prenoms) ? agent.nom + ' ' + agent.prenoms : (agent.nomprenoms || agent.nom || ''),
-                    imDefunt: agent.matricule || agent.matriculepension || '', 
-                    grade: agent.codegrade || '',
-                    categorie: agent.codecategorie || '',
-                    indice:agent.indice || '',
-                    imputation: agent.codesection || '',
-                    pension:agent.pensionnet || ''
+                        nomDefunt: (agent.nom && agent.prenoms) ? (agent.nom + ' ' + agent.prenoms).replace(/\s+/g, ' ') : (agent.nomprenoms || agent.nom || ''),
+                        imDefunt: agent.matricule || agent.matriculepension || '', 
+                        grade: agent.codegrade || '',
+                        categorie: agent.codecategorie || '',
+                        indice: agent.indice || '',
+                        imputation: agent.codesection || '',
+                        pension: agent.pensionnet || ''
                     },
                 });
+
+
             },
             async fetchSecours(){
                 try{
@@ -226,7 +256,7 @@
                 });
 
                 // Afficher le message de succès
-                alert(response.data.message);
+                this.showMessage(response.data.message,'alert-success');
 
                 // Mettre à jour la liste après suppression
                 this.list = this.list.filter(secours => !(secours.matriculedef === matriculedef && secours.beneficiaire === beneficiaire));
@@ -235,10 +265,30 @@
                 console.error("Erreur lors de la suppression du dossier :", error);
                 alert("Erreur lors de la suppression du dossier.");
                 }
-            }
+            },
+
+            showMessage(msg, type) {
+                this.message = msg;
+                this.messageType = type;
+
+                // Masquer le message après 5 secondes
+                setTimeout(() => {
+                this.message = "";
+                this.messageType = "";
+                }, 5000);
+            },
         },
         mounted(){
             this.fetchSecours()
         }
     }
 </script>
+
+<style scoped>
+  .alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+  }
+</style>

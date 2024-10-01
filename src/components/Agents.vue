@@ -6,7 +6,7 @@
 
     <div id="searchBar" class="shadow" style="height: 10rem;">
         <form class="text-center">
-            <h6 class="mt-4">Tapez l'IM ou le nom pour rechercher un agent et appuyez sur entrer :</h6>
+            <h6 class="mt-4">Tapez l'IM ou le nom pour rechercher un agent :</h6>
             <input v-if="status == 'activite'"  v-model="recherche" placeholder="...IM ou nom..." type="text" class="form-control mb-3" @input="searchActive">
             <input v-else v-model="recherche" placeholder="...IM ou nom..." type="text" class="form-control mb-3" @input="searchRetraite">
             <div class="form-check form-check-inline">

@@ -150,7 +150,7 @@ export default {
           scales: {
             y: {
               beginAtZero: true, 
-              max: 15,           
+              max: 10,           
             }
           }
         }

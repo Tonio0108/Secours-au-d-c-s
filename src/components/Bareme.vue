@@ -88,9 +88,11 @@
       </div>
       
       <!-- Message de Notification -->
-      <div v-if="message" :class="`alert ${messageType}`" role="alert">
-        {{ message }}
-      </div>
+      <Transition>
+        <div v-if="message" :class="`alert ${messageType}`" role="alert">
+          {{ message }}
+        </div>
+      </Transition>
     </div>
   </template>
   
@@ -201,5 +203,6 @@
     right: 20px;
     z-index: 1050;
   }
+
   </style>
   
