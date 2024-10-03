@@ -93,7 +93,7 @@ export default {
   methods: {
     async countActive() {
       try {
-        const res = await axios.get('http://192.168.0.104:3000/api/stat/active');
+        const res = await axios.get('http://localhost:3000/api/stat/active');
         this.active = res.data;
         console.log(this.active[0].nbactive);
       } catch (error) {
@@ -102,7 +102,7 @@ export default {
     },
     async countRetraite() {
       try {
-        const res = await axios.get('http://192.168.0.104:3000/api/stat/retraite');
+        const res = await axios.get('http://localhost:3000/api/stat/retraite');
         this.retraite = res.data;
         console.log(this.retraite[0].nbretraite);
       } catch (error) {
@@ -112,7 +112,7 @@ export default {
 
     async countDossiers() {
       try {
-        const res = await axios.get('http://192.168.0.104:3000/api/stat/secours');
+        const res = await axios.get('http://localhost:3000/api/stat/secours');
         this.dossiers = res.data;
         console.log(this.dossiers[0].nbdossier);
       } catch (error) {
@@ -122,7 +122,7 @@ export default {
     async courbe() {
     try {
       // Récupérer les données depuis l'API
-      const response = await fetch('http://192.168.0.104:3000/api/stat/month');
+      const response = await fetch('http://localhost:3000/api/stat/month');
       const result = await response.json();
 
       // Extraire les valeurs des dossiers traités (nombre)

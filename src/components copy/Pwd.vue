@@ -83,7 +83,7 @@ import axios from 'axios';
     }
     
     try {
-        const response = await axios.post('http://192.168.0.104:3000/api/change-password', {
+        const response = await axios.post('http://localhost:3000/api/change-password', {
             oldPass: this.oldPass,
             newPass: this.newPass
         });
@@ -128,9 +128,9 @@ import axios from 'axios';
 }
 
 .toggle-btn4 {
-  position: relative;
-  bottom: 15px;
-  left: 36%;
+  position: absolute;
+  right: 20%;
+  top: 62.5%;
   transform: translateY(-50%);
   background-color: transparent;
   border: none;

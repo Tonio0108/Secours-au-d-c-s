@@ -647,7 +647,7 @@ methods: {
 
         async fetchBareme(categorie, indice,annee) {
             try {
-                const response = await axios.get(`http://192.168.0.104:3000/api/bareme/${categorie}/${indice}/${annee}`);
+                const response = await axios.get(`http://localhost:3000/api/bareme/${categorie}/${indice}/${annee}`);
                 let bareme = response.data;
                 console.log('Données reçues:', bareme); // Ajoutez ce log pour voir la structure de bareme
 
@@ -749,11 +749,11 @@ methods: {
             montant: this.montant,
             cin: this.cin,
             acte: this.acte,
-            dateacte: this.dateActe,
+            dateacte: this.dateacte,
         };
         if(this.beneficiaire !== '' && this.nomDefunt !== '' && this.statut !== '' && this.dateDec !== '' && this.acte !== '' ){
         try {
-            const response = await axios.post('http://192.168.0.104:3000/api/secours', newSecours);
+            const response = await axios.post('http://localhost:3000/api/secours', newSecours);
             this.showMessage(response.data.message, 'alert-success'); // Affiche le message de succès
             // Optionnel : Mettre à jour l'affichage ou vider le formulaire ici
         } catch (error) {

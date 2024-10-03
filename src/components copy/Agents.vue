@@ -153,7 +153,7 @@ export default {
         // recuperer les agent en activité
         async fetchActive() {
             try {
-                const active = await axios.get('http://192.168.0.104:3000/api/agent/active');
+                const active = await axios.get('http://localhost:3000/api/agent/active');
                 this.actives = active.data;
             } catch (error) {
                 alert('Erreur lors de la récupération des données des agents en activité');
@@ -164,7 +164,7 @@ export default {
         //recuperer les agents en retraite
         async fetchRetraite() {
             try {
-                const retraite = await axios.get('http://192.168.0.104:3000/api/agent/retraite');
+                const retraite = await axios.get('http://localhost:3000/api/agent/retraite');
                 this.retraites = retraite.data;
             } catch (error) {
                 alert('Erreur lors de la récupération des données des retraités');
@@ -176,7 +176,7 @@ export default {
         async searchActive() {
             if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                 try {
-                const response = await axios.get(`http://192.168.0.104:3000/api/agent/active/${this.recherche}`);  // Utilise `this.recherche`
+                const response = await axios.get(`http://localhost:3000/api/agent/active/${this.recherche}`);  // Utilise `this.recherche`
                 this.resultActive = response.data;
                 } catch (error) {
                 console.error('Erreur lors de la recherche:', error);
@@ -191,7 +191,7 @@ export default {
         async searchRetraite() {
             if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                 try {
-                const response = await axios.get(`http://192.168.0.104:3000/api/agent/retraite/${this.recherche}`);  // Utilise `this.recherche`
+                const response = await axios.get(`http://localhost:3000/api/agent/retraite/${this.recherche}`);  // Utilise `this.recherche`
                 this.resultRetraite = response.data;
                 } catch (error) {
                 console.error('Erreur lors de la recherche:', error);
@@ -226,7 +226,7 @@ export default {
         formData.append("file", this.file);
   
         try {
-          const response = await axios.post("http://local192.168.0.104/agent/active/upload", formData, {
+          const response = await axios.post("http://localhost:3000/agent/active/upload", formData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -257,7 +257,7 @@ export default {
         formData.append("file", this.file);
   
         try {
-          const response = await axios.post("http://local192.168.0.104/agent/retraite/upload", formData, {
+          const response = await axios.post("http://localhost:3000/agent/retraite/upload", formData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },

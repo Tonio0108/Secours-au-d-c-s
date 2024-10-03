@@ -593,7 +593,8 @@ app.get('/api/secours/recherche/:param', async (req, res) => {
     }
 });
 
+
 // Démarrer le serveur
-app.listen(port, () => {
-    console.log(`Backend server is running on http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Backend server is running on http://0.0.0.0:${port}`);
 });
