@@ -60,7 +60,9 @@ html,body {
 }
 
 #form-secours {
+  margin-top: 0 !important;
   padding: 2rem;
+  border: 0 !important;
 }
 
 #form-secours .form-control{
@@ -108,6 +110,7 @@ input::placeholder{
 #tableau, #tabRetraite{
   margin-top: 5rem;
 }
+
 
 td{
   font-size: small;

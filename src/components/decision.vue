@@ -192,11 +192,6 @@
                         <input v-model="dateActe" type="date" class="form-control" :class="class" style="width: 10rem;">
                     </div>
                 </div>
-
-                <div class="d-flex justify-content-end mt-4">
-                    <button type="submit" class="btn btn-success me-5" @click="generateDecision">Aperçu de la décision</button>
-                    <button type="button" class="btn btn-success" @click="generateED">Aperçu de l'ED</button>
-                </div>
             </form>
         </div>
 

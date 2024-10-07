@@ -502,42 +502,55 @@ app.get('/api/agent/retraite/:param', async (req, res) => {
     }
 });
 
-// Route pour ajouter des données de secours au décès
+// Route pour ajouter ou modifier des données de secours au décès
 app.post('/api/secours', async (req, res) => {
     try {
-        const { beneficiaire, qtbeneficiaire, matriculedef, nomdef, montant, cin, acte, dateacte } = req.body;
+        const { beneficiaire, cin, datecin, adresse, qualite, nomdef, imdef, status, activite, grade, indice, categorie, bareme, section, datedec, acte, dateacte } = req.body;
 
-
-        // Exécution de la requête SQL d'insertion
+        // Exécution de la requête SQL d'insertion ou de mise à jour
         const query = `
-            INSERT INTO secours (beneficiaire, qtbeneficiaire, matriculedef, nomdef, montant, date, cin, acte, dateacte) 
-            VALUES ($1, $2, $3, $4, $5, CURRENT_DATE, $6, $7, $8)
+            INSERT INTO secours (beneficiaire, cin, datecin, adresse, qualite, nomdef, imdef, status, activite, grade, indice, categorie, bareme, section, datedec, acte, dateacte, date) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, CURRENT_DATE)
+            ON CONFLICT (cin) 
+            DO UPDATE SET
+                beneficiaire = EXCLUDED.beneficiaire,
+                datecin = EXCLUDED.datecin,
+                adresse = EXCLUDED.adresse,
+                qualite = EXCLUDED.qualite,
+                nomdef = EXCLUDED.nomdef,
+                imdef = EXCLUDED.imdef,
+                status = EXCLUDED.status,
+                activite = EXCLUDED.activite,
+                grade = EXCLUDED.grade,
+                indice = EXCLUDED.indice,
+                categorie = EXCLUDED.categorie,
+                bareme = EXCLUDED.bareme,
+                section = EXCLUDED.section,
+                datedec = EXCLUDED.datedec,
+                acte = EXCLUDED.acte,
+                dateacte = EXCLUDED.dateacte,
+                date = CURRENT_DATE;
         `;
 
         const values = [
-            beneficiaire,
-            qtbeneficiaire,
-            matriculedef,
-            nomdef,
-            montant,
-            cin,
-            acte,
-            dateacte
+            beneficiaire, cin, datecin, adresse, qualite, nomdef, imdef, status, activite, grade, indice, categorie, bareme, section, datedec, acte, dateacte
         ];
 
         await pool.query(query, values);
 
-        res.status(201).json({ message: 'Dossier ajouté avec succès' }); // Message de succès
+        res.status(201).json({ message: 'Dossier ajouté ou mis à jour avec succès' }); // Message de succès
     } catch (err) {
-        console.error('Erreur lors de l\'ajout du dossier:', err);
+        console.error('Erreur lors de l\'ajout ou la mise à jour du dossier:', err);
         res.status(500).json({ message: 'Erreur du serveur' }); // Gestion d'erreur
     }
 });
 
+
+
 app.get('/api/secours/list', async (req, res) => {
     try {
         const result = await pool.query(
-            'SELECT * FROM secours ORDER BY numero DESC LIMIT 5'
+            'SELECT * FROM secours ORDER BY numero DESC LIMIT 2'
         );
 
         res.setHeader('Content-Type', 'application/json');
@@ -553,7 +566,7 @@ app.delete('/api/secours/delete', async (req, res) => {
         const { matriculedef, beneficiaire } = req.body;
 
         // Vérifier si un dossier existe pour ce beneficiaire et cet agent
-        const checkQuery = `SELECT * FROM secours WHERE matriculedef = $1 AND beneficiaire = $2`;
+        const checkQuery = `SELECT * FROM secours WHERE imdef = $1 AND beneficiaire = $2`;
         const checkResult = await pool.query(checkQuery, [matriculedef, beneficiaire]);
 
         if (checkResult.rows.length === 0) {
@@ -580,7 +593,7 @@ app.get('/api/secours/recherche/:param', async (req, res) => {
 
         // Exécution de la requête SQL avec CONCAT pour gérer les wildcards (%)
         const result = await pool.query(
-            `SELECT * FROM secours WHERE beneficiaire ILIKE '%' || $1 || '%' OR matriculedef ILIKE '%' || $1 || '%' OR nomdef ILIKE '%' || $1 || '%'`, 
+            `SELECT * FROM secours WHERE beneficiaire ILIKE '%' || $1 || '%' OR im ILIKE '%' || $1 || '%' OR nomdef ILIKE '%' || $1 || '%'`, 
             [param]
         );
 
