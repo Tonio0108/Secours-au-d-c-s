@@ -44,10 +44,10 @@ const routes = [
   },
 
   {
-    path: '/decision',
-    name: 'Decision',
-    component: () => import('../components/decision.vue')
-  },
+    path: '/users',
+    name: 'Users',
+    component: () => import('../components/users.vue')
+  }
 
 ];
 

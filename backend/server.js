@@ -259,25 +259,98 @@ app.post('/agent/retraite/upload', upload.single('file'), async (req, res) => {
     }
 });
 
-// Route pour la connexion des utilisateurs
-app.post('/api/login', async (req, res) => {
-    const { password } = req.body; // Récupérer le mot de passe depuis la requête
 
-    // Vérifier si le mot de passe est fourni
-    if (!password) {
-        return res.status(400).json({ message: 'Mot de passe requis' });
+// Route pour ajouter un nouvel utilisateur
+app.post('/api/register', async (req, res) => {
+    const { username, fullname, im, password } = req.body; // Récupérer le nom d'utilisateur et le mot de passe depuis la requête
+
+    // Vérifier si les informations sont fournies
+    if (!username || !password) {
+        return res.status(400).json({ message: 'Nom d\'utilisateur et mot de passe requis' });
     }
 
     try {
-        // Récupérer le mot de passe dans la BD
-        const result = await pool.query('SELECT * FROM password');
+        // Vérifier si l'utilisateur existe déjà dans la base de données
+        const userExists = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
 
-        // Vérifie si un mot de passe est trouvé
+        if (userExists.rows.length > 0) {
+            return res.status(400).json({ message: 'Nom d\'utilisateur déjà pris' });
+        }
+
+        // Hacher le mot de passe avant de l'enregistrer
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insérer le nouvel utilisateur dans la base de données
+        await pool.query(
+            'INSERT INTO users (username, fullname, im, password, created) VALUES ($1, $2, $3, $4, CURRENT_DATE)',
+            [username, fullname, im, hashedPassword]
+        );
+
+        res.status(201).json({ message: 'Utilisateur créé avec succès' }); // Message de succès
+    } catch (err) {
+        console.error('Erreur lors de la création de l\'utilisateur:', err);
+        res.status(500).json({ message: 'Erreur du serveur' }); // Gestion des erreurs
+    }
+});
+
+// Récupérer les agents en activité
+app.get('/api/users', async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT * FROM users'
+        );
+
+        res.setHeader('Content-Type', 'application/json');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erreur du serveur');
+    }
+});
+
+app.delete('/api/users/delete', async (req, res) => {
+    try {
+        const { username } = req.body;
+
+        // Vérifier si un dossier existe pour ce beneficiaire et cet agent
+        const checkQuery = `SELECT * FROM users WHERE username = $1`;
+        const checkResult = await pool.query(checkQuery, [username]);
+
+        if (checkResult.rows.length === 0) {
+            // Si le dossier n'existe pas, renvoyer un message
+            return res.status(404).json({ message: "Aucun dossier trouvé pour cet agent et bénéficiaire" });
+        }
+
+        // Supprimer le dossier correspondant
+        const deleteQuery = `DELETE FROM users WHERE username = $1`;
+        await pool.query(deleteQuery, [username]);
+
+        res.status(200).json({ message: "utilisateur avec succès" });
+    } catch (err) {
+        console.error('Erreur lors de la suppression:', err);
+        res.status(500).json({ message: 'Erreur du serveur' });
+    }
+});
+
+// Route pour la connexion des utilisateurs
+app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body; // Récupérer le nom d'utilisateur et le mot de passe depuis la requête
+
+    // Vérifier si le nom d'utilisateur et le mot de passe sont fournis
+    if (!username || !password) {
+        return res.status(400).json({ message: 'Nom d\'utilisateur et mot de passe requis' });
+    }
+
+    try {
+        // Récupérer l'utilisateur par le nom d'utilisateur dans la BD
+        const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+
+        // Vérifier si l'utilisateur est trouvé
         if (result.rows.length > 0) {
             const user = result.rows[0];
             const hashedPassword = user.password; // Le mot de passe haché stocké dans la base de données
 
-            // Vérifie si le mot de passe haché est valide
+            // Vérifier si le mot de passe haché est valide
             if (!hashedPassword) {
                 return res.status(500).json({ message: 'Erreur de mot de passe dans la base de données' });
             }
@@ -286,7 +359,7 @@ app.post('/api/login', async (req, res) => {
             const isMatch = await bcrypt.compare(password, hashedPassword);
 
             if (isMatch) {
-                // Si les mots de passe correspondent
+                // Si les mots de passe correspondent, connexion réussie
                 res.status(200).json({ message: 'Connexion réussie', user });
             } else {
                 // Si le mot de passe est incorrect
@@ -304,19 +377,20 @@ app.post('/api/login', async (req, res) => {
 
 // Route pour changer le mot de passe
 app.post('/api/change-password', async (req, res) => {
-    const { oldPass, newPass } = req.body; // Récupérer l'ancien et le nouveau mot de passe
+    const { username, oldPass, newPass } = req.body; // Récupérer le nom d'utilisateur, l'ancien et le nouveau mot de passe
 
-    // Vérifier si les deux mots de passe sont fournis
-    if (!oldPass || !newPass) {
-        return res.status(400).json({ message: 'Ancien et nouveau mot de passe requis' });
+    // Vérifier si toutes les informations sont fournies
+    if (!username || !oldPass || !newPass) {
+        return res.status(400).json({ message: 'Nom d\'utilisateur, ancien et nouveau mot de passe requis' });
     }
 
     try {
-        // Récupérer le mot de passe actuel depuis la base de données
-        const result = await pool.query('SELECT * FROM password');
+        // Récupérer l'utilisateur par le nom d'utilisateur
+        const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
 
         if (result.rows.length > 0) {
-            const hashedPassword = result.rows[0].password; // Le mot de passe haché stocké dans la base de données
+            const user = result.rows[0];
+            const hashedPassword = user.password; // Le mot de passe haché stocké dans la base de données
 
             // Comparer l'ancien mot de passe fourni avec le mot de passe haché
             const isMatch = await bcrypt.compare(oldPass, hashedPassword);
@@ -325,8 +399,8 @@ app.post('/api/change-password', async (req, res) => {
                 // Si l'ancien mot de passe est correct, hacher le nouveau mot de passe
                 const newHashedPassword = await bcrypt.hash(newPass, 10);
 
-                // Mettre à jour le mot de passe dans la base de données
-                await pool.query('UPDATE password SET password = $1', [newHashedPassword]);
+                // Mettre à jour le mot de passe dans la base de données pour cet utilisateur
+                await pool.query('UPDATE users SET password = $1 WHERE username = $2', [newHashedPassword, username]);
 
                 res.status(200).json({ message: 'Mot de passe changé avec succès' });
             } else {
@@ -334,13 +408,14 @@ app.post('/api/change-password', async (req, res) => {
                 res.status(401).json({ message: 'Ancien mot de passe incorrect' });
             }
         } else {
-            res.status(404).json({ message: 'Aucun mot de passe trouvé dans la base de données' });
+            res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
     } catch (err) {
         console.error('Erreur lors du changement de mot de passe:', err);
         res.status(500).json({ message: 'Erreur du serveur' });
     }
 });
+
 
 // Route pour récupérer le bareme avec catégorie, indice et année
 app.get('/api/bareme/:categorie/:indice/:annee', async (req, res) => {
@@ -510,7 +585,7 @@ app.post('/api/secours', async (req, res) => {
         // Exécution de la requête SQL d'insertion ou de mise à jour
         const query = `
             INSERT INTO secours (beneficiaire, cin, datecin, adresse, qualite, nomdef, imdef, status, activite, grade, indice, categorie, bareme, section, datedec, acte, dateacte, date) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, CURRENT_DATE)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, CURRENT_DATE)
             ON CONFLICT (cin) 
             DO UPDATE SET
                 beneficiaire = EXCLUDED.beneficiaire,
@@ -608,6 +683,11 @@ app.get('/api/secours/recherche/:param', async (req, res) => {
 
 
 // Démarrer le serveur
+/*
 app.listen(port, '0.0.0.0', () => {
     console.log(`Backend server is running on http://0.0.0.0:${port}`);
-});
+});*/
+
+app.listen(port, () => {
+    console.log(`Backend server is running on http://localhost:${port}`);
+})

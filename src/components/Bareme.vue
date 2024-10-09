@@ -118,7 +118,7 @@
             this.showMessage("Tous les champs de recherche sont requis.", "alert-danger");
             return;
           }
-          const response = await axios.get(`http://192.168.0.105:3000/api/bareme/${categorie}/${indice}/${annee}`);
+          const response = await axios.get(`http://localhost:3000/api/bareme/${categorie}/${indice}/${annee}`);
           this.bareme = response.data; // Assignez les données reçues à votre variable bareme
           if (this.bareme.length === 0) {
             this.showMessage("Aucun bareme trouvé pour les critères spécifiés.", "alert-warning");
@@ -160,7 +160,7 @@
         formData.append("file", this.file);
   
         try {
-          const response = await axios.post("http://192.168.0.105:3000/bareme/upload", formData, {
+          const response = await axios.post("http://localhost:3000/bareme/upload", formData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },

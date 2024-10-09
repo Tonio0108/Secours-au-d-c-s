@@ -291,7 +291,7 @@
         </div>
         
         <div v-if="this.index == 4"  class="shadow text-center" id="Question4">
-            <div class="shadow p-4 rounded-4" style="height: 20rem; width: 40rem; margin-left: 1rem;">
+            <div class="shadow p-4 rounded-4" style="height: 20rem; width: 45rem; margin-left: 1rem;">
                 <h5 style=" text-decoration: underline">informations sur notre défunt(e) :</h5>
                 <div class="row mt-4">
                     <div class="col-md-12">
@@ -317,7 +317,7 @@
                 </div>
                 <div class="row">
                     <div class="col-md-4">
-                        <p><strong>bareme :</strong> {{ this.categorie }}</p>
+                        <p><strong>bareme :</strong> {{ this.dateBar }}</p>
                     </div>
                     <div class="col-md-4">
                         <p><strong>Section :</strong> {{ this.section }}</p>
@@ -337,7 +337,7 @@
                 </div>
 
             </div>
-            <div id="form-secours" class="shadow p-4 rounded-4" style="height: 20rem; width: 50rem; margin-left: 1rem;">
+            <div id="form-secours" class="shadow-sm p-4 rounded-4" style="height: 20rem; width: 45rem; margin-left: 1rem;">
                 <form @submit.prevent="addSecours">
 
                     <div class="row mb-3">
@@ -418,7 +418,7 @@
                 </div>
                 <div class="row">
                     <div class="col-md-4">
-                        <p><strong>bareme :</strong> {{ this.categorie }}</p>
+                        <p><strong>bareme :</strong> {{ this.dateBar }}</p>
                     </div>
                     <div class="col-md-4">
                         <p><strong>Section :</strong> {{ this.section }}</p>
@@ -475,20 +475,13 @@
         <table id="sec" class="table table-striped text-center" style="table-layout: fixed; width: 100%;">
             <thead>
                 <tr>
-                    <th style="white-space: nowrap; width: 150px;">Date</th>
-                <th style="white-space: nowrap; width: 200px;">Bénéficiaire</th>
-                <th style="white-space: nowrap; width: 100px;">CIN</th>
-                <th style="white-space: nowrap; width: 150px;">Date CIN</th>
-                <th style="white-space: nowrap; width: 200px;">Adresse</th>
-                <th style="white-space: nowrap; width: 150px;">Qualité</th>
-                <th style="white-space: nowrap; width: 200px;">Defunt(e)</th>
+                    <th style="white-space: nowrap; width: 110px;">Date</th>
+                <th style="white-space: nowrap; width: 300px;">Bénéficiaire</th>
+                <th style="white-space: nowrap; width: 90px;">CIN</th>
+                <th style="white-space: nowrap; width: 200px;">Qualité</th>
+                <th style="white-space: nowrap; width: 300px;">Defunt(e)</th>
                 <th style="white-space: nowrap; width: 100px;">IM</th>
-                <th style="white-space: nowrap; width: 150px;">Type</th>
                 <th style="white-space: nowrap; width: 150px;">Status</th>
-                <th style="white-space: nowrap; width: 150px;">Grade</th>
-                <th style="white-space: nowrap; width: 100px;">Indice</th>
-                <th style="white-space: nowrap; width: 150px;">Categorie</th>
-                <th style="white-space: nowrap; width: 150px;">Section</th>
                 <th style="white-space: nowrap; width: 150px;">Date de décès</th>
                 <th style="white-space: nowrap; width: 200px;">Acte de décès N°</th>
                 <th style="white-space: nowrap; width: 150px;">Du</th>
@@ -500,17 +493,11 @@
                     <td>{{ formatDate(secours.date) }}</td>
                     <td>{{ secours.beneficiaire }}</td>
                     <td>{{ secours.cin }}</td>
-                    <td>{{ formatDate(secours.datecin) }}</td>
-                    <td>{{ secours.adresse }}</td>
                     <td>{{ secours.qualite }}</td>
                     <td>{{ secours.nomdef }}</td>
                     <td>{{ secours.imdef }}</td>
-                    <td>{{ secours.activite }}</td>
+ 
                     <td>{{ secours.status }}</td>
-                    <td>{{ secours.grade }}</td>
-                    <td>{{ secours.indice }}</td>
-                    <td>{{ secours.categorie }}</td>
-                    <td>{{ secours.section }}</td>
                     <td>{{ formatDate(secours.datedec) }}</td>
                     <td>{{ secours.acte }}</td>
                     <td>{{ formatDate(secours.dateacte) }}</td>
@@ -1003,7 +990,7 @@
             async searchActive() {
             if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                 try {
-                const response = await axios.get(`http://192.168.0.105:3000/api/agent/active/${this.recherche}`);  // Utilise `this.recherche`
+                const response = await axios.get(`http://localhost:3000/api/agent/active/${this.recherche}`);  // Utilise `this.recherche`
                 this.resultActive = response.data;
                 } catch (error) {
                 console.error('Erreur lors de la recherche:', error);
@@ -1017,7 +1004,7 @@
             async searchRetraite() {
                 if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                     try {
-                    const response = await axios.get(`http://192.168.0.105:3000/api/agent/retraite/${this.recherche}`);  // Utilise `this.recherche`
+                    const response = await axios.get(`http://localhost:3000/api/agent/retraite/${this.recherche}`);  // Utilise `this.recherche`
                     this.resultRetraite = response.data;
                     } catch (error) {
                     console.error('Erreur lors de la recherche:', error);
@@ -1031,7 +1018,7 @@
             async searchSecours() {
                 if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                     try {
-                    const response = await axios.get(`http://192.168.0.105:3000/api/secours/recherche/${this.recherche}`);  // Utilise `this.recherche`
+                    const response = await axios.get(`http://localhost:3000/api/secours/recherche/${this.recherche}`);  // Utilise `this.recherche`
                     this.resultSecours = response.data;
                     } catch (error) {
                     console.error('Erreur lors de la recherche:', error);
@@ -1068,7 +1055,7 @@
 
             async fetchSecours(){
                 try{
-                    const res = await axios.get('http://192.168.0.105:3000/api/secours/list')
+                    const res = await axios.get('http://localhost:3000/api/secours/list')
                     this.list = res.data
                     console.log(this.list)
                 }catch(err){
@@ -1084,7 +1071,7 @@
                 if (!confirmation) return;
 
                 // Envoi de la requête de suppression
-                const response = await axios.delete('http://192.168.0.105:3000/api/secours/delete', {
+                const response = await axios.delete('http://localhost:3000/api/secours/delete', {
                     data: {
                     matriculedef,
                     beneficiaire
@@ -1187,7 +1174,7 @@
             
             async fetchBareme(categorie, indice,annee) {
             try {
-                const response = await axios.get(`http://192.168.0.105:3000/api/bareme/${categorie}/${indice}/${annee}`);
+                const response = await axios.get(`http://localhost:3000/api/bareme/${categorie}/${indice}/${annee}`);
                 let bareme = response.data;
                 console.log('Données reçues:', bareme); // Ajoutez ce log pour voir la structure de bareme
 
@@ -1300,7 +1287,7 @@
                 };
 
                 try {
-                    const response = await axios.post('http://192.168.0.105:3000/api/secours', newSecours);
+                    const response = await axios.post('http://localhost:3000/api/secours', newSecours);
                     this.showMessage(response.data.message, 'alert-success'); // Affiche le message de succès
                     // Optionnel : Mettre à jour l'affichage ou vider le formulaire ici
                 } catch (error) {
@@ -1320,6 +1307,7 @@
 
             editSecours(beneficiaire, cin, datecin, adresse, qualite, nomdef, imdef, status, activite, grade, indice, categorie, bareme, section, datedec, acte, dateacte){
                 this.index = 3
+                this.mode = true
                 this.beneficiaire = beneficiaire
                 this.cin = cin,
                 this.datecin = datecin,

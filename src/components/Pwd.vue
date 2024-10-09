@@ -83,7 +83,7 @@ import axios from 'axios';
     }
     
     try {
-        const response = await axios.post('http://192.168.0.105:3000/api/change-password', {
+        const response = await axios.post('http://localhost:3000/api/change-password', {
             oldPass: this.oldPass,
             newPass: this.newPass
         });
