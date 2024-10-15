@@ -14,10 +14,25 @@
             </button>
         </div>
         <div class="next">
-            <button v-if="this.index < 5" class="btn btn-outline-success" @click="this.index++" :disabled="this.index < 3">
+            <button 
+                v-if="index === 3" 
+                class="btn btn-outline-success" 
+                @click="index++" 
+                :disabled="index < 3 || 
+                imDefunt === '' || nomDefunt === '' || acte === ''">
                 suivant
                 <i class="bi bi-arrow-right"></i>
             </button>
+
+            <button 
+                v-if="index === 4" 
+                class="btn btn-outline-success" 
+                @click="index++" 
+                :disabled="beneficiaire === '' || cin === '' || status === ''">
+                suivant
+                <i class="bi bi-arrow-right"></i>
+            </button>
+
             <button v-if="this.index == 5" class="btn btn-outline-success" @click="openModal2('Impression')">
                 <i class="bi bi-printer"></i>
                 Impression
@@ -202,7 +217,9 @@
                             </div>
                             <div class="col-md-3" v-if="this.activite == 'En activité'">
                                 <label for="categorie" class="form-label">Categorie :</label>
-                                <input v-model="categorie" type="text" class="form-control" style="width: 10rem;">
+                                <select v-model="categorie" name="annee" class="form-select">
+                                    <option v-for="cat in categorie2" :value="cat.categorie"> {{ cat.categorie }}</option>
+                                </select>
                             </div>
                             <div class="col-md-3">
                                 <label for="indice" class="form-label">Indice :</label>
@@ -210,8 +227,10 @@
                             </div>
 
                             <div class="col-md-3">
-                                <label for="indice" class="form-label">Année du bareme utilisé :</label>
-                                <input v-model="dateBar" type="text" class="form-control" style="width: 10rem;">
+                                <label  for="annee" class="form-label">Année du bareme utilisé :</label>
+                                <select v-model="dateBar" name="annee" class="form-select">
+                                    <option v-for="year in years" :value="year.date"> {{ year.date }}</option>
+                                </select>
                             </div>
                         </div>
                         <div class="row mb-3" v-if="this.activite === 'Retraité'">
@@ -452,7 +471,7 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6">
-                        <p><strong>CIN :</strong> {{ this.cin }}</p>
+                        <p><strong>CIN :</strong> {{ (this.cin).replace(/(.{3})(?=.)/g, "$1 ") }}</p>
                     </div>
                     <div class="col-md-6">
                         <p><strong>Du :</strong> {{ formatDate(this.datecin) }}</p>
@@ -504,7 +523,7 @@
                     <td><button @click="editSecours(secours.beneficiaire,secours.cin, formatDateToYMD(secours.datecin), secours.adresse, secours.qualite, secours.nomdef, secours.imdef, secours.status, secours.activite, secours.grade, secours.indice, secours.categorie, secours.bareme, secours.section, formatDateToYMD(secours.datedec), secours.acte, formatDateToYMD(secours.dateacte))" class="btn btn-outline-primary">
                         <i class="bi bi-pencil"></i>
                         </button>
-                        <button @click="deleteSecours(secours.matriculedef,secours.beneficiaire,)" class="btn btn-outline-danger ms-3">
+                        <button @click="deleteSecours(secours.imdef,secours.beneficiaire,)" class="btn btn-outline-danger ms-3">
                         <i class="bi bi-trash"></i>
                         </button>
                     </td>
@@ -623,62 +642,62 @@
                             <tr style="height: 15rem;">
                                 <td class="text-center" style="padding-top: 3rem; font-size: 0.9rem;">
                                     <p>{{ titre }} {{ beneficiaire }}</p>
-                                    <p>Titulaire du CIN n° {{ cin }}</p>
+                                    <p>Titulaire du CIN n° {{ cin.replace(/(.{3})(?=.)/g, "$1 ") }}</p>
                                     <p>du {{ this.datecin !== "" ? formatDate(datecin) : ""}}</p>
                                     <p>Domicilé à {{ domicile.toUpperCase() }}</p>
                                 </td>
                                 <td class="text-center" style="padding-top: 2rem; font-size: 0.95rem;">
                                     <p>En application {{ decret }} {{ titre }} {{ beneficiaire }} obtient en tant que {{ statut }} un secours au décès,
-                                        au montant d' <strong>Ar {{ montant  }}</strong><br>
+                                        au montant d' <strong>Ar {{ parseFloat(montant).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2})}}</strong><br>
                                         &lt;&lt; {{ this.nombreEnLettre(montant).toUpperCase()  }} &gt;&gt;<br>
                                         <strong v-if="activite == 'En activité' && !plusieursLit">(
-                                        <b v-if="v500 > 0">{{ v500 }} + </b>
-                                        <b v-if="v501 > 0">{{ v501 }} + </b>
-                                        <b v-if="v502 > 0">{{ v502 }} + </b>
-                                        <b v-if="v503 > 0">{{ v503 }} + </b>
-                                        <b v-if="v506 > 0">{{ v506 }}</b>
-                                        * {{ multi }}) = {{ montant }}
+                                        <b v-if="v500 > 0">{{ parseFloat(v500).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v501 > 0">{{ parseFloat(v501).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v502 > 0">{{ parseFloat(v502).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v503 > 0">{{ parseFloat(v503).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v506 > 0">{{ parseFloat(v506).toLocaleString('fr-FR') }}</b>
+                                        * {{ multi }}) = {{ parseFloat(montant).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                                         </strong>
 
                                         <strong v-if="activite == 'En activité' && plusieursLit">
                                         [ ( 
-                                        <b v-if="v500 > 0">{{ v500 }} + </b>
-                                        <b v-if="v501 > 0">{{ v501 }} + </b>
-                                        <b v-if="v502 > 0">{{ v502 }} + </b>
-                                        <b v-if="v503 > 0">{{ v503 }} + </b>
-                                        <b v-if="v506 > 0">{{ v506 }}</b>
-                                         * {{ multi }})  / {{ nbLit }} ] = {{ montant }}
+                                        <b v-if="v500 > 0">{{ parseFloat(v500).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v501 > 0">{{ parseFloat(v501).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v502 > 0">{{ parseFloat(v502).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v503 > 0">{{ parseFloat(v503).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v506 > 0">{{ parseFloat(v506).toLocaleString('fr-FR') }}</b>
+                                         * {{ multi }})  / {{ nbLit }} ] = {{ parseFloat(montant).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                                         </strong>
 
                                         <strong v-if="activite == 'Retraité' && !plusieursLit">(
-                                        <b v-if="v600 > 0">{{ v600 }} + </b>
-                                        <b v-if="v601 > 0">{{ v601 }} + </b>
-                                        <b v-if="v602 > 0">{{ v602 }} + </b>
-                                        <b v-if="v603 > 0">{{ v603 }} + </b>
-                                        <b v-if="v604 > 0">{{ v604 }} + </b>
-                                        <b v-if="v605 > 0">{{ v605 }} + </b>
-                                        <b v-if="v606 > 0">{{ v606 }} + </b>
-                                        <b v-if="v607 > 0">{{ v607 }} + </b>
-                                        <b v-if="v608 > 0">{{ v608 }} + </b>
-                                        <b v-if="v609 > 0">{{ v609 }} + </b>
-                                        <b v-if="v610 > 0">{{ v610 }}</b>
-                                         * {{ multi }}) = {{ montant }}
+                                        <b v-if="v600 > 0">{{ parseFloat(v600).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v601 > 0">{{ parseFloat(v601).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v602 > 0">{{ parseFloat(v602).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v603 > 0">{{ parseFloat(v603).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v604 > 0">{{ parseFloat(v604).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v605 > 0">{{ parseFloat(v605).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v606 > 0">{{ parseFloat(v606).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v607 > 0">{{ parseFloat(v607).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v608 > 0">{{ parseFloat(v608).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v609 > 0">{{ parseFloat(v609).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v610 > 0">{{ parseFloat(v610).toLocaleString('fr-FR') }}</b>
+                                         * {{ multi }}) = {{ parseFloat(montant).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                                         </strong>
 
                                         <strong v-if="activite == 'Retraité' && plusieursLit">
                                         [(
-                                        <b v-if="v600 > 0">{{ v600 }} + </b>
-                                        <b v-if="v601 > 0">{{ v601 }} + </b>
-                                        <b v-if="v602 > 0">{{ v602 }} + </b>
-                                        <b v-if="v603 > 0">{{ v603 }} + </b>
-                                        <b v-if="v604 > 0">{{ v604 }} + </b>
-                                        <b v-if="v605 > 0">{{ v605 }} + </b>
-                                        <b v-if="v606 > 0">{{ v606 }} + </b>
-                                        <b v-if="v607 > 0">{{ v607 }} + </b>
-                                        <b v-if="v608 > 0">{{ v608 }} + </b>
-                                        <b v-if="v609 > 0">{{ v609 }} + </b>
-                                        <b v-if="v610 > 0">{{ v610 }}</b>
-                                        ) * {{ multi }}] / {{ nbLit }} = {{ montant }}
+                                        <b v-if="v600 > 0">{{ parseFloat(v600).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v601 > 0">{{ parseFloat(v601).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v602 > 0">{{ parseFloat(v602).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v603 > 0">{{ parseFloat(v603).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v604 > 0">{{ parseFloat(v604).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v605 > 0">{{ parseFloat(v605).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v606 > 0">{{ parseFloat(v606).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v607 > 0">{{ parseFloat(v607).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v608 > 0">{{ parseFloat(v608).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v609 > 0">{{ parseFloat(v609).toLocaleString('fr-FR') }} + </b>
+                                        <b v-if="v610 > 0">{{ parseFloat(v610).toLocaleString('fr-FR') }}</b>
+                                        ) * {{ multi }}] / {{ nbLit }} = {{ parseFloat(montant).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                                         </strong>
                                          égal à {{ nombreEnLettre2(multi) }} mois de la <span v-if="this.activite === 'Retraité'">pension</span><span v-else>solde</span>  du défunt {{ nomDefunt }} ,
                                         matricule {{ imDefunt }} Décédé le {{ this.dateDec !== "" ? formatDate(dateDec) : "" }} suivant l'acte de décès N° {{ acte }} du {{ this.dateActe !== "" ? formatDate(dateActe) : "" }}
@@ -745,7 +764,7 @@
                     </tbody>
                 </table>
 
-                <p style="margin-top: 2rem;">
+                <p style="margin-top: 1rem;">
                     En application {{ decret }},  
                     il y a lieu d’appliquer le décompte suivant
                 </p>
@@ -759,26 +778,28 @@
                         </tr>
                         <tr>
                             <td><b>Montant mensuel =</b></td>
-                            <td>{{ montantMens }}</td>
+                            <td>{{ parseFloat(montantMens).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
                         </tr>
                         <tr v-if="!plusieursLit">
                             <td><b>Montant mensuel * {{ multi }} =</b></td>
-                            <td>{{ montantMens }} * {{ multi }}</td>
+                            <td>{{ parseFloat(montantMens).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }} * {{ multi }}</td>
                         </tr>
                         <tr v-else>
                             <td><b>(Montant mensuel * {{ multi }}) / {{ nbLit }} =</b></td>
-                            <td>({{ montantMens }} * {{ multi }}) / {{ nbLit }}</td>
+                            <td>({{ parseFloat(montantMens).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }} * {{ multi }}) / {{ nbLit }}</td>
                         </tr>
                         <tr>
                             <td><b>Montant du Secours au décès =</b></td>
-                            <td>{{ montant }}</td>
+                            <td>{{ parseFloat(montant).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <p style="margin-top: 2rem;">
+                <p style="margin-top: 1rem;">
                     <strong>ARRETE LE PRESENT ETAT DE DECOMPTE A LA SOMME DE {{ nombreEnLettre(montant).toUpperCase() }}</strong>
                 </p>
+
+                <p style = "text-align: right; margin-top: 1rem;">Mananjary, le____________________________________</p>
                 </div>
 
 
@@ -851,6 +872,7 @@
                 fonction: '',
                 nbLit: 0,
                 categorie:'',
+                categorie2: [],
                 dateBar:'',
                 class:'',
                 section: '',
@@ -861,7 +883,7 @@
                 modalMessage: "",
                 selectedOption: "",
                 showError: false,
-
+                years:[],
             }
         },
 
@@ -1064,7 +1086,7 @@
                 }
             },
 
-            async deleteSecours(matriculedef, beneficiaire) {
+            async deleteSecours(imdef, beneficiaire) {
                 try {
                 // Confirmation de la suppression
                 const confirmation = confirm("Êtes-vous sûr de vouloir supprimer ce dossier ?");
@@ -1073,7 +1095,7 @@
                 // Envoi de la requête de suppression
                 const response = await axios.delete('http://localhost:3000/api/secours/delete', {
                     data: {
-                    matriculedef,
+                    imdef,
                     beneficiaire
                     }
                 });
@@ -1082,7 +1104,7 @@
                 this.showMessage(response.data.message,'alert-success');
 
                 // Mettre à jour la liste après suppression
-                this.list = this.list.filter(secours => !(secours.matriculedef === matriculedef && secours.beneficiaire === beneficiaire));
+                this.list = this.list.filter(secours => !(secours.imdef === imdef && secours.beneficiaire === beneficiaire));
 
                 } catch (error) {
                 console.error("Erreur lors de la suppression du dossier :", error);
@@ -1194,6 +1216,26 @@
             }
         },
 
+        async fetchYearBar() {
+            try {
+                const year = await axios.get('http://localhost:3000/bareme/year');
+                this.years = year.data;
+            } catch (error) {
+                alert('Erreur lors de la récupération des données des retraités');
+                console.log(error);
+            }
+        },
+
+        async fetchCategorie() {
+            try {
+                const categorie = await axios.get('http://localhost:3000/categorie');
+                this.categorie2 = categorie.data;
+            } catch (error) {
+                alert('Erreur lors de la récupération des données des retraités');
+                console.log(error);
+            }
+        },
+
             nombreEnLettre(nb) {
             let texte = n2words(nb, { lang: "fr" });
             if (Number.isInteger(nb)) {
@@ -1266,34 +1308,44 @@
             },
 
             async addSecours() {
+                // Créer un objet pour le nouveau dossier "secours"
                 const newSecours = {
                     beneficiaire: this.beneficiaire, 
                     cin: this.cin, 
-                    datecin: this.datecin, 
+                    datecin: this.datecin || '', 
                     adresse: this.domicile, 
                     qualite: this.statut, 
                     nomdef: this.nomDefunt, 
                     imdef: this.imDefunt, 
-                    status: this.fonction , 
+                    status: this.fonction, 
                     activite: this.activite, 
                     grade: this.grade, 
                     indice: this.indice, 
                     categorie: this.categorie, 
                     bareme: this.dateBar, 
                     section: this.section, 
-                    datedec: this.dateDec, 
+                    datedec: this.dateDec || '', 
                     acte: this.acte, 
-                    dateacte: this.dateActe,
+                    dateacte: this.dateActe || '',
                 };
 
+                // Vérifier que certains champs obligatoires sont remplis
+                if (!this.beneficiaire || !this.cin || !this.nomDefunt || !this.imDefunt) {
+                    this.showMessage("Veuillez remplir tous les champs obligatoires.", "alert-danger");
+                    return;
+                }
+
                 try {
+                    // Envoyer une requête POST pour ajouter le nouveau dossier
                     const response = await axios.post('http://localhost:3000/api/secours', newSecours);
                     this.showMessage(response.data.message, 'alert-success'); // Affiche le message de succès
-                    // Optionnel : Mettre à jour l'affichage ou vider le formulaire ici
+                    // Réinitialiser le formulaire ou mettre à jour l'affichage ici si nécessaire
                 } catch (error) {
-                    this.showMessage('Erreur lors de l\'ajout du dossier' + error,'alert-danger');
+                    console.error('Erreur lors de l\'ajout du dossier:', error.message);
+                    this.showMessage('Erreur lors de l\'ajout du dossier : ' + error, 'alert-danger');
                 }
             },
+
 
             formatDateToYMD(date) {
                 if (date) {
@@ -1329,6 +1381,8 @@
         },
         mounted(){
             this.fetchSecours()
+            this.fetchYearBar()
+            this.fetchCategorie()
         }
     }
 </script>

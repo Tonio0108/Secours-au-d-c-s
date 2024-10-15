@@ -32,17 +32,21 @@
       <div id="searchBarBarem" class="shadow" style="height: 45rem;">
         <form class="text-center">
           <div class="row mb-3">
-            <div class="col-2">
-              <label for="categorie" class="form-label">Categorie :</label>
-              <input v-model="categorie" required type="text" class="form-control" style="width: 100px;">
+            <div class="col-2 mx-auto">
+              <label for="indice" class="form-label">Categorie :</label>
+              <select v-model="categorie" class="form-select" name="categorie">
+                <option v-for="cat in categorie2" :value="cat.categorie"> {{ cat.categorie }} </option>
+              </select>
             </div>
-            <div class="col-2">
+            <div class="col-2 mx-auto">
               <label for="indice" class="form-label">Indice :</label>
               <input v-model="indice" type="text" class="form-control" required style="width: 150px;">
             </div>
-            <div class="col-2">
+            <div class="col-2 mx-auto">
               <label for="annee" class="form-label">Année :</label>
-              <input v-model="annee" type="number" class="form-control" required style="width: 150px;" min="1900" max="2100">
+              <select v-model="annee" class="form-select" name="annee">
+                <option v-for="year in years" :value="year.date"> {{ year.date }} </option>
+              </select>
             </div>
             <div class="col-2">
               <button class="btn btn-success" type="button" @click="fetchBareme(categorie, indice, annee)" style="margin-top: 29px;">Rechercher</button>
@@ -105,10 +109,12 @@
         annee: "",
         bareme: [],
         categorie: "",
+        categorie2: [],
         indice: "",
         file: null, // Pour stocker le fichier sélectionné
         message: "", // Pour les messages de notification
         messageType: "", // 'alert-success' ou 'alert-danger'
+        years:[],
       };
     },
     methods: {
@@ -130,7 +136,28 @@
           this.showMessage("Erreur lors de la récupération des données.", "alert-danger");
         }
       },
-  
+
+        async fetchCategorie() {
+            try {
+                const categorie = await axios.get('http://localhost:3000/categorie');
+                this.categorie2 = categorie.data;
+            } catch (error) {
+                alert('Erreur lors de la récupération des données des retraités');
+                console.log(error);
+            }
+        },
+
+        async fetchYearBar() {
+            try {
+                const year = await axios.get('http://localhost:3000/bareme/year');
+                this.years = year.data;
+            } catch (error) {
+                alert('Erreur lors de la récupération des données des retraités');
+                console.log(error);
+            }
+        },
+
+
       formatDate(dateString) {
         const date = new Date(dateString);
         return date.toLocaleDateString('fr-FR', {
@@ -192,7 +219,14 @@
         }, 5000);
       },
     },
+
+    mounted(){
+      this.fetchCategorie()
+      this.fetchYearBar()
+    }
   };
+
+
   </script>
   
   <style scoped>

@@ -124,20 +124,33 @@ export default {
       // Récupérer les données depuis l'API
       const response = await fetch('http://localhost:3000/api/stat/month');
       const result = await response.json();
-
+      const response2 = await fetch('http://localhost:3000/api/stat/month2');
+      const result2 = await response2.json();
       // Extraire les valeurs des dossiers traités (nombre)
       const dataFromAPI = result.map(item => item.nombre); // Tableau des nombres par mois
+      const dataFromAPI2 = result2.map(item => item.nombre)
 
       const labels = ['Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet','Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
       const data = {
         labels: labels,
-        datasets: [{
-          label: 'Dossiers traités',
+        datasets: [
+          {
+          label: 'Dossiers traités cette année',
           data: dataFromAPI,
           fill: false,
-          borderColor: 'rgb(75, 192, 192)',
+          borderColor: 'rgb(75, 192, 192)', 
           tension: 0.1
-        }]
+        },
+
+        {
+          label: `Dossiers traités l'année dernière`,
+          data: dataFromAPI2,
+          fill: false,
+          borderColor: 'rgb(180, 0, 0)', 
+          tension: 0.1
+        }
+
+      ]
       };
 
       const ctx = document.getElementById('courbe').getContext('2d');

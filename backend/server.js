@@ -6,9 +6,12 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
+const session = require('express-session');
+const PgSession = require('connect-pg-simple')(session);
 
 const app = express();
 const port = 3000;
+
 
 // Configuration de multer pour gérer les fichiers envoyés via formulaire
 const storage = multer.diskStorage({
@@ -231,6 +234,37 @@ app.post('/bareme/upload', upload.single('file'), async (req, res) => {
     }
 });
 
+// Récupérer les années de bareme
+app.get('/bareme/year', async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT DISTINCT EXTRACT(YEAR FROM (date)) AS date FROM bareme'
+        );
+
+        res.setHeader('Content-Type', 'application/json');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erreur du serveur');
+    }
+});
+
+// Récupérer les categories
+app.get('/categorie', async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT DISTINCT categorie FROM bareme ORDER BY categorie asc'
+        );
+
+        res.setHeader('Content-Type', 'application/json');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erreur du serveur');
+    }
+});
+
+
 // Importer les agents actifs
 app.post('/agent/active/upload', upload.single('file'), async (req, res) => {
     try {
@@ -332,48 +366,69 @@ app.delete('/api/users/delete', async (req, res) => {
     }
 });
 
+
+
+// Configuration de la session
+app.use(session({
+    store: new PgSession({
+        pool: pool, // Utiliser le même pool de connexion à la base de données
+        tableName: 'session' // Nom de la table pour stocker les sessions
+    }),
+    secret: 'srsp2024', // Remplacez par une chaîne secrète sécurisée
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 // Durée de vie du cookie de session (1 jour)
+    }
+}));
+
+//Verification de session
+function isAuthenticated(req, res, next) {
+    if (req.session.user) {
+        next(); // L'utilisateur est connecté, continuer vers la route
+    } else {
+        res.redirect('/api/login'); // Rediriger vers la page de connexion si non connecté
+    }
+}
+
+
 // Route pour la connexion des utilisateurs
 app.post('/api/login', async (req, res) => {
-    const { username, password } = req.body; // Récupérer le nom d'utilisateur et le mot de passe depuis la requête
-
-    // Vérifier si le nom d'utilisateur et le mot de passe sont fournis
-    if (!username || !password) {
-        return res.status(400).json({ message: 'Nom d\'utilisateur et mot de passe requis' });
-    }
+    const { username, password } = req.body;
 
     try {
-        // Récupérer l'utilisateur par le nom d'utilisateur dans la BD
         const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
 
-        // Vérifier si l'utilisateur est trouvé
         if (result.rows.length > 0) {
             const user = result.rows[0];
-            const hashedPassword = user.password; // Le mot de passe haché stocké dans la base de données
-
-            // Vérifier si le mot de passe haché est valide
-            if (!hashedPassword) {
-                return res.status(500).json({ message: 'Erreur de mot de passe dans la base de données' });
-            }
-
-            // Comparer le mot de passe fourni avec le mot de passe haché
-            const isMatch = await bcrypt.compare(password, hashedPassword);
+            const isMatch = await bcrypt.compare(password, user.password);
 
             if (isMatch) {
-                // Si les mots de passe correspondent, connexion réussie
+                req.session.user = { username: user.username, fullname: user.fullname };
                 res.status(200).json({ message: 'Connexion réussie', user });
             } else {
-                // Si le mot de passe est incorrect
                 res.status(401).json({ message: 'Mot de passe incorrect' });
             }
         } else {
-            // Si l'utilisateur n'existe pas
             res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
     } catch (err) {
-        console.error('Erreur lors de la connexion:', err);
         res.status(500).json({ message: 'Erreur du serveur' });
     }
 });
+
+
+//route pour la deconnexion
+app.post('/api/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ message: 'Erreur lors de la déconnexion' });
+        }
+        res.status(200).json({ message: 'Déconnexion réussie' });
+    });
+});
+
+
 
 // Route pour changer le mot de passe
 app.post('/api/change-password', async (req, res) => {
@@ -492,7 +547,9 @@ app.get('/api/stat/month', async (req, res) => {
             )
             SELECT m.mois, COALESCE(COUNT(s.numero), 0) AS nombre
             FROM months m
-            LEFT JOIN secours s ON EXTRACT(MONTH FROM s.date) = m.mois
+            LEFT JOIN secours s 
+            ON EXTRACT(MONTH FROM s.date) = m.mois
+            AND EXTRACT(YEAR FROM s.date) = EXTRACT(YEAR FROM CURRENT_DATE)
             GROUP BY m.mois
             ORDER BY m.mois`
         );
@@ -504,6 +561,31 @@ app.get('/api/stat/month', async (req, res) => {
         res.status(500).send('Erreur du serveur');
     }
 });
+
+app.get('/api/stat/month2', async (req, res) => {
+    try {
+        const result = await pool.query(
+            `WITH months AS (
+                SELECT generate_series(1, 12) AS mois
+            )
+            SELECT m.mois, COALESCE(COUNT(s.numero), 0) AS nombre
+            FROM months m
+            LEFT JOIN secours s 
+            ON EXTRACT(MONTH FROM s.date) = m.mois
+            AND EXTRACT(YEAR FROM s.date) = EXTRACT(YEAR FROM CURRENT_DATE) - 1 
+            GROUP BY m.mois
+            ORDER BY m.mois`
+        );
+
+        res.setHeader('Content-Type', 'application/json');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erreur du serveur');
+    }
+});
+
+
 
 // Récupérer les agents en activité
 app.get('/api/agent/active', async (req, res) => {
@@ -638,11 +720,11 @@ app.get('/api/secours/list', async (req, res) => {
 
 app.delete('/api/secours/delete', async (req, res) => {
     try {
-        const { matriculedef, beneficiaire } = req.body;
+        const { imdef, beneficiaire } = req.body;
 
         // Vérifier si un dossier existe pour ce beneficiaire et cet agent
         const checkQuery = `SELECT * FROM secours WHERE imdef = $1 AND beneficiaire = $2`;
-        const checkResult = await pool.query(checkQuery, [matriculedef, beneficiaire]);
+        const checkResult = await pool.query(checkQuery, [imdef, beneficiaire]);
 
         if (checkResult.rows.length === 0) {
             // Si le dossier n'existe pas, renvoyer un message
@@ -650,8 +732,8 @@ app.delete('/api/secours/delete', async (req, res) => {
         }
 
         // Supprimer le dossier correspondant
-        const deleteQuery = `DELETE FROM secours WHERE matriculedef = $1 AND beneficiaire = $2`;
-        await pool.query(deleteQuery, [matriculedef, beneficiaire]);
+        const deleteQuery = `DELETE FROM secours WHERE imdef = $1 AND beneficiaire = $2`;
+        await pool.query(deleteQuery, [imdef, beneficiaire]);
 
         res.status(200).json({ message: "Dossier supprimé avec succès" });
     } catch (err) {
@@ -659,6 +741,33 @@ app.delete('/api/secours/delete', async (req, res) => {
         res.status(500).json({ message: 'Erreur du serveur' });
     }
 });
+
+app.delete('/api/agent/active/delete', async (req, res) => {
+    try {
+        // Supprimer tous les dossiers de la table active
+        const deleteQuery = `DELETE FROM active`;
+        await pool.query(deleteQuery);
+
+        res.status(200).json({ message: "Tous les dossiers ont été supprimés avec succès" });
+    } catch (err) {
+        console.error('Erreur lors de la suppression des dossiers:', err);
+        res.status(500).json({ message: 'Erreur du serveur' });
+    }
+});
+
+app.delete('/api/agent/retraite/delete', async (req, res) => {
+    try {
+        // Supprimer tous les dossiers de la table active
+        const deleteQuery = `DELETE FROM retraite`;
+        await pool.query(deleteQuery);
+
+        res.status(200).json({ message: "Tous les dossiers ont été supprimés avec succès" });
+    } catch (err) {
+        console.error('Erreur lors de la suppression des dossiers:', err);
+        res.status(500).json({ message: 'Erreur du serveur' });
+    }
+});
+
 
 // Route pour la recherche d'agents retraités
 app.get('/api/secours/recherche/:param', async (req, res) => {

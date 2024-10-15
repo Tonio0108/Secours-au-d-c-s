@@ -56,4 +56,16 @@ const router = createRouter({
   routes
 });
 
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = !!sessionStorage.getItem('user'); // Vérifiez l'authentification de l'utilisateur
+  
+  // Vérifiez si l'utilisateur n'est pas authentifié et tente d'accéder à une autre route que /login
+  if (!isAuthenticated && to.path !== '/') {
+      next('/'); // Redirigez vers /login si l'utilisateur n'est pas connecté
+  } else {
+      next(); // Sinon, continuez la navigation normalement
+  }
+});
+
+
 export default router;

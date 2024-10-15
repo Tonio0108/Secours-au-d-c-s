@@ -217,66 +217,88 @@ export default {
       },
   
       async uploadAgent() {
-        if (!this.file) {
-          this.showMessage("Veuillez sélectionner un fichier avant d'importer.", "alert-danger");
-          return;
-        }
-  
-        const formData = new FormData();
-        formData.append("file", this.file);
-  
-        try {
-          const response = await axios.post("http://localhost:3000/agent/active/upload", formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
-  
-          this.showMessage(response.data.message, "alert-success");
-          this.file = null; // Réinitialiser le fichier après importation réussie
-  
-          // Fermer la modal après un court délai
-          setTimeout(() => {
-            const importModal = new bootstrap.Modal(document.getElementById('importEx'));
-            importModal.hide();
-          }, 1000);
-  
-        } catch (error) {
-          console.error("Erreur lors de l'importation du fichier :", error.message);
-          this.showMessage("Erreur lors de l'importation du fichier.", "alert-danger");
-        }
+          if (!this.file) {
+              this.showMessage("Veuillez sélectionner un fichier avant d'importer.", "alert-danger");
+              return;
+          }
+
+          const formData = new FormData();
+          formData.append("file", this.file);
+
+          try {
+              // Supprimer les données existantes dans la table active
+              const supp = await axios.delete('http://localhost:3000/api/agent/active/delete');
+              if (supp.status === 200) {
+                  this.showMessage("Données supprimées avec succès.", "alert-success");
+              } else {
+                  this.showMessage("Échec de la suppression des données.", "alert-danger");
+                  return; // Arrêter l'exécution si la suppression échoue
+              }
+
+              // Importer le nouveau fichier
+              const response = await axios.post("http://localhost:3000/agent/active/upload", formData, {
+                  headers: {
+                      "Content-Type": "multipart/form-data",
+                  },
+              });
+
+              this.showMessage(response.data.message, "alert-success");
+              this.file = null; // Réinitialiser le fichier après importation réussie
+
+              // Fermer la modal après un court délai
+              setTimeout(() => {
+                  const importModal = new bootstrap.Modal(document.getElementById('importEx'));
+                  importModal.hide();
+              }, 1000);
+
+          } catch (error) {
+              console.error("Erreur lors de l'importation du fichier :", error.message);
+              this.showMessage("Erreur lors de l'importation du fichier.", "alert-danger");
+          }
       },
+
 
       async uploadRetraite() {
         if (!this.file) {
-          this.showMessage("Veuillez sélectionner un fichier avant d'importer.", "alert-danger");
-          return;
+            this.showMessage("Veuillez sélectionner un fichier avant d'importer.", "alert-danger");
+            return;
         }
-  
+
         const formData = new FormData();
         formData.append("file", this.file);
-  
+
         try {
-          const response = await axios.post("http://localhost:3000/agent/retraite/upload", formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
-  
-          this.showMessage(response.data.message, "alert-success");
-          this.file = null; // Réinitialiser le fichier après importation réussie
-  
-          // Fermer la modal après un court délai
-          setTimeout(() => {
-            const importModal = new bootstrap.Modal(document.getElementById('importEx'));
-            importModal.hide();
-          }, 1000);
-  
+            // Supprimer les données existantes dans la table active
+            const supp = await axios.delete('http://localhost:3000/api/agent/retraite/delete');
+            if (supp.status === 200) {
+                this.showMessage("Données supprimées avec succès.", "alert-success");
+            } else {
+                this.showMessage("Échec de la suppression des données.", "alert-danger");
+                return; // Arrêter l'exécution si la suppression échoue
+            }
+
+            // Importer le nouveau fichier
+            const response = await axios.post("http://localhost:3000/agent/retraite/upload", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            this.showMessage(response.data.message, "alert-success");
+            this.file = null; // Réinitialiser le fichier après importation réussie
+
+            // Fermer la modal après un court délai
+            setTimeout(() => {
+                const importModal = new bootstrap.Modal(document.getElementById('importEx'));
+                importModal.hide();
+            }, 1000);
+
         } catch (error) {
-          console.error("Erreur lors de l'importation du fichier :", error.message);
-          this.showMessage("Erreur lors de l'importation du fichier.", "alert-danger");
+            console.error("Erreur lors de l'importation du fichier :", error.message);
+            this.showMessage("Erreur lors de l'importation du fichier.", "alert-danger");
         }
-      },
+    },
+
   
       showMessage(msg, type) {
         this.message = msg;

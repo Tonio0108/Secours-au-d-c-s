@@ -10,9 +10,12 @@
             <div class=" col-5">
                 <img src="../assets/Logo_hd_MEF-PETIT-2.png" alt="logo FE" width="600px">
             </div>
-            <div class="col-6 shadow rounded-4 text-center">
+            <div class="col-6 shadow rounded-4 text-center" style="height: auto;">
                 
                 <form @submit.prevent="connect">
+                    <h6 style="margin-top: 1rem;">Nom d'utilisateur:</h6>
+                    <input v-model="username" type="text" class="form-control">
+
                     <h6 style="margin-top: 1rem;">ancien mot de passe:</h6>
                     <input v-model="oldPass" :type="showPassword ? 'text' : 'password'" :class="classname1">
                     <p class=" text-danger mt-2">{{ alert }}</p>
@@ -46,6 +49,7 @@ import axios from 'axios';
     export default{
         data(){
             return{
+                username:'',
                 oldPass:'',
                 newPass:'',
                 newPass2:'',
@@ -104,19 +108,7 @@ import axios from 'axios';
 
 <style>
 .toggle-btn2 {
-  position: absolute;
-  right: 20%;
-  top: 40.5%;
-  transform: translateY(-50%);
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  color: #ffffff;
-}
-
-.toggle-btn3 {
-  position: absolute;
+  position: fixed;
   right: 20%;
   top: 51.5%;
   transform: translateY(-50%);
@@ -127,10 +119,22 @@ import axios from 'axios';
   color: #ffffff;
 }
 
+.toggle-btn3 {
+  position: fixed;
+  right: 20%;
+  top: 62.5%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #ffffff;
+}
+
 .toggle-btn4 {
-  position: relative;
-  bottom: 15px;
-  left: 36%;
+  position: fixed;
+  bottom: 23.5%;
+  right: 20%;
   transform: translateY(-50%);
   background-color: transparent;
   border: none;

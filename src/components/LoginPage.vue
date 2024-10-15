@@ -9,10 +9,13 @@
             <div class="col-5">
                 <img src="../assets/Logo_hd_MEF-PETIT-2.png" alt="logo FE" width="600px" />
             </div>
-            <div class="col-6 shadow rounded-4 text-center">
-                <h6 style="margin-top: 5rem;">Veuillez saisir le mot de passe :</h6>
+            <div class="col-6 shadow rounded-4 text-center" 
+                style="height: auto;">
                 <form @submit.prevent="connect">
-                    <input v-model="passwordIn" :type="showPassword ? 'text' : 'password'" :class="classname" />
+                    <label class="mt-4" for="usename">Nom d'utilisateur :</label>
+                    <input  v-model="username" class="form-control mt-3" type="text">
+                    <label class="mt-4" for="password">Mot de passe :</label>
+                    <input class="mt-3" v-model="passwordIn" :type="showPassword ? 'text' : 'password'" :class="classname" />
                     <p class="text-danger mt-2">{{ alert }}</p>
                     <button @click="togglePassword" type="button" class="toggle-btn">
                         <font-awesome-icon :icon="showPassword ? 'eye-slash' : 'eye'" />
@@ -32,6 +35,7 @@ import axios from 'axios';
 export default {
     data() {
         return {
+            username: '',
             passwordIn: '',     //variable pour stocker le mot de passe saisi
             alert: '',
             classname: 'form-control',
@@ -45,15 +49,16 @@ export default {
         async connect() {
             try {
                 //recuperation du mot de passe dans la base de donnée et comparaison entre le mdp saisi
-                const response = await axios.post('http://localhost:3000/api/login', {
+                const response = await axios.post('http://localhost:3000/api/login', { username: this.username,
                 password: this.passwordIn
                 });
 
                 //rediriger sur la page d'accueil on a la status 200
                 if (response.status === 200) {
-                this.$router.push({
-                    path: '/welcome'
-                });
+                    sessionStorage.setItem('user', JSON.stringify(response.data.user));
+
+                    // Redirigez l'utilisateur vers la page d'accueil ou une autre route après la connexion
+                    this.$router.push('/welcome');
                 }
             } catch (error) {
                 if (error.response) {
@@ -78,9 +83,9 @@ export default {
 
 <style>
 .toggle-btn {
-    position: relative;
-    left: 11rem;
-    bottom: 2.6rem;
+    position: fixed;
+    right: 20%;
+    bottom: 46.5%;
     transform: translateY(-50%);
     background-color: transparent;
     border: none;
