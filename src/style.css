@@ -108,7 +108,7 @@ input::placeholder{
 }
 
 #tableau, #tabRetraite{
-  margin-top: 5rem;
+  margin-top: 2rem;
 }
 
 
@@ -210,4 +210,8 @@ label{
 
 .col-md-2 .form-control{
   width: 6rem;
+}
+
+#disconnect{
+  margin-top: 18rem;
 }

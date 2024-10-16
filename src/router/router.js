@@ -46,7 +46,19 @@ const routes = [
   {
     path: '/users',
     name: 'Users',
-    component: () => import('../components/users.vue')
+    component: () => import('../components/users.vue'),
+    beforeEnter: (to, from, next) => {
+      // Vérifiez si l'utilisateur est connecté et si le nom d'utilisateur est "chef"
+      const user = JSON.parse(sessionStorage.getItem('user'));
+  
+      if (user && user.username === 'chef') {
+        // Si l'utilisateur est "chef", autorisez l'accès
+        next();
+      } else {
+        // Sinon, redirigez vers une autre page, par exemple la page de connexion
+        next('/statistique');
+      }
+    }
   }
 
 ];

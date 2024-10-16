@@ -223,7 +223,7 @@
                             </div>
                             <div class="col-md-3">
                                 <label for="indice" class="form-label">Indice :</label>
-                                <input v-model="indice" type="text" class="form-control" style="width: 10rem;">
+                                <input v-model="indice" type="number" class="form-control" style="width: 10rem;">
                             </div>
 
                             <div class="col-md-3">
@@ -297,7 +297,7 @@
 
                             <div class="col-md-3">
                                 <label for="acte" class="form-label">Acte de décès n° :</label>
-                                <input v-model="acte" type="text" class="form-control" :class="class" style="width: 10rem;">
+                                <input v-model="acte" type="number" class="form-control" :class="class" style="width: 10rem;">
                             </div>
                             <div class="col-md-3">
                                 <label for="dateacte" class="form-label">du :</label>
@@ -402,7 +402,7 @@
                                 <input v-model="plusieursLit" type="checkbox" id="lit" value="pluralite" class="form-check-input" style="width: 30px; height: 30px; margin-top: 34px;">
                                 <label for="lit" class="form-check-label ms-4" style="margin-top: 38px;">Pluralité de lit</label>                        
                             </div>
-                            <input v-model="nbLit" v-if="plusieursLit" type="text" class="form-control" style="width: 40px; height: 25px">
+                            <input v-model="nbLit" v-if="plusieursLit" type="number" class="form-control mt-4" style="width: 70px; height: 40px">
                         </div>
                     </div>
 
@@ -489,9 +489,11 @@
 
     </div>
 
+
         <!-- Tableau pour les secours -->
-        <div id="tableau" class="overflow-scroll" style="height: 12rem; width: 163vh;">
-        <table id="sec" class="table table-striped text-center" style="table-layout: fixed; width: 100%;">
+        <div id="tableau" class="overflow-scroll" style="height: 17rem; width: 163vh;">
+        <input v-model="recherche" type='text' class = "form-control" placeholder="bénéficiaire ou nom de l'agent ou IM" @input="searchSecours">
+        <table id="sec" class="table table-striped text-center mt-3" style="table-layout: fixed; width: 100%;">
             <thead>
                 <tr>
                     <th style="white-space: nowrap; width: 110px;">Date</th>
@@ -502,8 +504,6 @@
                 <th style="white-space: nowrap; width: 100px;">IM</th>
                 <th style="white-space: nowrap; width: 150px;">Status</th>
                 <th style="white-space: nowrap; width: 150px;">Date de décès</th>
-                <th style="white-space: nowrap; width: 200px;">Acte de décès N°</th>
-                <th style="white-space: nowrap; width: 150px;">Du</th>
                 <th style="white-space: nowrap; width: 150px;">Actions</th>
                 </tr>
             </thead>
@@ -518,9 +518,8 @@
  
                     <td>{{ secours.status }}</td>
                     <td>{{ formatDate(secours.datedec) }}</td>
-                    <td>{{ secours.acte }}</td>
-                    <td>{{ formatDate(secours.dateacte) }}</td>
-                    <td><button @click="editSecours(secours.beneficiaire,secours.cin, formatDateToYMD(secours.datecin), secours.adresse, secours.qualite, secours.nomdef, secours.imdef, secours.status, secours.activite, secours.grade, secours.indice, secours.categorie, secours.bareme, secours.section, formatDateToYMD(secours.datedec), secours.acte, formatDateToYMD(secours.dateacte))" class="btn btn-outline-primary">
+
+                    <td><button @click="editSecours(secours.beneficiaire,secours.cin, formatDateToYMD(secours.datecin), secours.adresse, secours.qualite, secours.nomdef, secours.imdef, secours.status, secours.activite, secours.grade, secours.indice, secours.categorie, secours.bareme, secours.section, formatDateToYMD(secours.datedec), secours.acte, formatDateToYMD(secours.dateacte), secours.date)" class="btn btn-outline-primary">
                         <i class="bi bi-pencil"></i>
                         </button>
                         <button @click="deleteSecours(secours.imdef,secours.beneficiaire,)" class="btn btn-outline-danger ms-3">
@@ -884,6 +883,7 @@
                 selectedOption: "",
                 showError: false,
                 years:[],
+                date: null
             }
         },
 
@@ -1307,45 +1307,56 @@
             
             },
 
+            
             async addSecours() {
-                // Créer un objet pour le nouveau dossier "secours"
                 const newSecours = {
-                    beneficiaire: this.beneficiaire, 
-                    cin: this.cin, 
-                    datecin: this.datecin || '', 
-                    adresse: this.domicile, 
-                    qualite: this.statut, 
-                    nomdef: this.nomDefunt, 
-                    imdef: this.imDefunt, 
-                    status: this.fonction, 
-                    activite: this.activite, 
-                    grade: this.grade, 
-                    indice: this.indice, 
-                    categorie: this.categorie, 
-                    bareme: this.dateBar, 
-                    section: this.section, 
-                    datedec: this.dateDec || '', 
-                    acte: this.acte, 
+                    beneficiaire: this.beneficiaire,
+                    cin: this.cin,
+                    datecin: this.datecin || '',
+                    adresse: this.domicile,
+                    qualite: this.statut,
+                    nomdef: this.nomDefunt,
+                    imdef: this.imDefunt,
+                    status: this.fonction,
+                    activite: this.activite,
+                    grade: this.grade,
+                    indice: this.indice,
+                    categorie: this.categorie,
+                    bareme: this.dateBar,
+                    section: this.section,
+                    datedec: this.dateDec || '',
+                    acte: this.acte,
                     dateacte: this.dateActe || '',
+                    date: this.date ? this.formatDateWithMilliseconds(this.date) : null, // Formater si la date existe
                 };
 
-                // Vérifier que certains champs obligatoires sont remplis
                 if (!this.beneficiaire || !this.cin || !this.nomDefunt || !this.imDefunt) {
                     this.showMessage("Veuillez remplir tous les champs obligatoires.", "alert-danger");
                     return;
                 }
 
                 try {
-                    // Envoyer une requête POST pour ajouter le nouveau dossier
                     const response = await axios.post('http://localhost:3000/api/secours', newSecours);
-                    this.showMessage(response.data.message, 'alert-success'); // Affiche le message de succès
-                    // Réinitialiser le formulaire ou mettre à jour l'affichage ici si nécessaire
+                    this.showMessage(response.data.message, 'alert-success');
+                    this.fetchSecours()
                 } catch (error) {
                     console.error('Erreur lors de l\'ajout du dossier:', error.message);
                     this.showMessage('Erreur lors de l\'ajout du dossier : ' + error, 'alert-danger');
                 }
             },
 
+            formatDateWithMilliseconds(date) {
+                const d = new Date(date);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0'); // Mois de 0 à 11
+                const day = String(d.getDate()).padStart(2, '0'); // Jour du mois
+                const hours = String(d.getHours()).padStart(2, '0');
+                const minutes = String(d.getMinutes()).padStart(2, '0');
+                const seconds = String(d.getSeconds()).padStart(2, '0');
+                const milliseconds = String(d.getMilliseconds()).padStart(3, '0'); // Ajout de millisecondes
+
+                return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+            },
 
             formatDateToYMD(date) {
                 if (date) {
@@ -1357,7 +1368,7 @@
             },
 
 
-            editSecours(beneficiaire, cin, datecin, adresse, qualite, nomdef, imdef, status, activite, grade, indice, categorie, bareme, section, datedec, acte, dateacte){
+            editSecours(beneficiaire, cin, datecin, adresse, qualite, nomdef, imdef, status, activite, grade, indice, categorie, bareme, section, datedec, acte, dateacte,date){
                 this.index = 3
                 this.mode = true
                 this.beneficiaire = beneficiaire
@@ -1377,6 +1388,8 @@
                 this.dateDec = datedec
                 this.acte = acte
                 this.dateActe = dateacte
+                this.date = date
+                console.log(this.date)
             }
         },
         mounted(){
