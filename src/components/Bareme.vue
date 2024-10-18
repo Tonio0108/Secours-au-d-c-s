@@ -1,10 +1,5 @@
 <template>
     <div>
-      <header class="" style="width: 100%;">
-        <h3 id="title">Bareme de solde</h3>
-        <img id="logo2" src="../assets/Logo_hd_MEF-PETIT-2.png" alt="" width="130px" height="80px">
-      </header>
-  
       <button id="importB" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importEx">Importer Excel</button>
   
       <!-- Modal pour importer un fichier -->
@@ -21,7 +16,12 @@
               <form @submit.prevent="uploadBareme">
                 <input type="file" class="form-control mb-3" @change="handleFileUpload" accept=".xlsx, .xls" required>
                 <div class="modal-footer">
-                  <button type="submit" class="btn btn-success" :disabled="!file">Importer</button>
+                  <button @click="uploadBareme" class="btn btn-primary" :disabled="loading">
+                    Importer
+                    <span v-if="loading" class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+                  </button>
+
+                  <p v-if="loading" class="text-muted mt-2">Importation en cours...</p>
                 </div>
               </form>
             </div>
@@ -115,6 +115,7 @@
         message: "", // Pour les messages de notification
         messageType: "", // 'alert-success' ou 'alert-danger'
         years:[],
+        loading: false
       };
     },
     methods: {
@@ -182,31 +183,34 @@
           this.showMessage("Veuillez sélectionner un fichier avant d'importer.", "alert-danger");
           return;
         }
-  
+
         const formData = new FormData();
         formData.append("file", this.file);
-  
+        this.loading = true; // Activer le chargement
+
         try {
           const response = await axios.post("http://localhost:3000/bareme/upload", formData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
           });
-  
+
           this.showMessage(response.data.message, "alert-success");
           this.file = null; // Réinitialiser le fichier après importation réussie
-  
+          
           // Fermer la modal après un court délai
           setTimeout(() => {
             const importModal = new bootstrap.Modal(document.getElementById('importEx'));
             importModal.hide();
           }, 1000);
-  
         } catch (error) {
           console.error("Erreur lors de l'importation du fichier :", error.message);
           this.showMessage("Erreur lors de l'importation du fichier.", "alert-danger");
+        } finally {
+          this.loading = false; // Désactiver le chargement une fois terminé
         }
       },
+
   
       showMessage(msg, type) {
         this.message = msg;

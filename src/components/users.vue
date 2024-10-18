@@ -146,38 +146,42 @@ export default {
         });
     },
     async add() {
-      // Vérifier si les mots de passe correspondent
-      if (this.password !== this.password2) {
-        this.showMessage('Les mots de passe ne correspondent pas', 'alert-danger');
-        this.className = 'border-danger'
-        return;
-      }
+        if (!this.username || !this.fullname || !this.im || !this.password || !this.password2) {
+            this.showMessage('Tous les champs sont requis', 'alert-danger');
+            return;
+        }
 
-      const newUser = {
-        username: this.username,
-        fullname: this.fullname,
-        im: this.im,  // Correction ici pour utiliser le champ IM correct
-        password: this.password,
-      };
+        if (this.password !== this.password2) {
+            this.showMessage('Les mots de passe ne correspondent pas', 'alert-danger');
+            this.className = 'border-danger';
+            return;
+        }
 
-      try {
-        const response = await axios.post('http://localhost:3000/api/register', newUser);
-        this.showMessage(response.data.message, 'alert-success'); // Affiche le message de succès
-        this.fetch(); // Mettre à jour la liste après l'ajout
-        // Optionnel : Vider le formulaire après l'ajout
-        this.username = '';
-        this.fullname = '';
-        this.im = '';
-        this.password = '';
-        this.password2 = '';
+        const newUser = {
+            username: this.username,
+            fullname: this.fullname,
+            im: this.im,
+            password: this.password,
+        };
 
-        setTimeout(() => {
-            window.location.reload();
-        },2000)
+        console.log('Données envoyées :', newUser); // Vérifiez les données ici
 
-      } catch (error) {
-        this.showMessage('Erreur lors de l\'ajout de l\'utilisateur : ' + error, 'alert-danger');
-      }
+        try {
+            const response = await axios.post('http://localhost:3000/api/register', newUser);
+            this.showMessage(response.data.message, 'alert-success');
+            await this.fetch();
+            this.username = '';
+            this.fullname = '';
+            this.im = '';
+            this.password = '';
+            this.password2 = '';
+            setTimeout(() => {
+                window.location.reload();
+              },2000)
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Erreur lors de l\'ajout de l\'utilisateur';
+            this.showMessage(errorMessage, 'alert-danger');
+        }
     },
 
     async fetch() {
@@ -208,7 +212,7 @@ export default {
                 this.showMessage(response.data.message,'alert-success');
                 setTimeout(() => {
                     window.location.reload();
-                },2000)
+                },1000)
                 } catch (error) {
                 console.error("Erreur lors de la suppression du dossier :", error);
                 alert("Erreur lors de la suppression du dossier.");

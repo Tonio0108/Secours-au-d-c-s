@@ -1,6 +1,6 @@
 <template>
-    <div id="welcome">
-        <div>
+    <div id="welcome" class="row mx-auto text-center">
+        <div class="col-12 my-auto mx-auto">
             <Transition>
                 <div id="text">
                     <h1>BONJOUR</h1>
@@ -36,7 +36,7 @@ export default {
                             this.$router.push('/statistique')
                         }, 2000)
                     }
-                }, index * 600); // intervalle de 500ms entre chaque changement
+                }, index * 400); // intervalle de 500ms entre chaque changement
             });
         },
         getColor(index) {
@@ -55,9 +55,7 @@ export default {
 
 <style>
     #welcome {
-        display: grid;
-        place-items: center;
-        height: 100%
+        height: 100vh;
     }
     h1 {
         font-size: 70px;

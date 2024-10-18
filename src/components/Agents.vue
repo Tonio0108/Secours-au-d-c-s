@@ -1,12 +1,7 @@
 <template>
-    <header class="" style="width: 100%;">
-        <h3 id="title">Agents de l'Etat</h3>
-        <img id="logo2" src="../assets/Logo_hd_MEF-PETIT-2.png" alt="" width="130px" height="80px">
-    </header>
-
     <div id="searchBar" class="shadow" style="height: 10rem;">
         <form class="text-center">
-            <h6 class="mt-4">Tapez l'IM ou le nom pour rechercher un agent :</h6>
+            <h6 class="mt-3">Tapez l'IM ou le nom pour rechercher un agent :</h6>
             <input v-if="status == 'activite'"  v-model="recherche" placeholder="...IM ou nom..." type="text" class="form-control mb-3" @input="searchActive">
             <input v-else v-model="recherche" placeholder="...IM ou nom..." type="text" class="form-control mb-3" @input="searchRetraite">
             <div class="form-check form-check-inline">
@@ -29,14 +24,19 @@
             <div class="modal-header">
               <h5 class="modal-title">Importer un fichier Excel</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
+                
               </button>
             </div>
             <div class="modal-body">
               <form @submit.prevent="this.status == 'activite'? uploadAgent() : uploadRetraite()">
                 <input type="file" class="form-control mb-3" @change="handleFileUpload" accept=".xlsx, .xls" required>
                 <div class="modal-footer">
-                  <button type="submit" class="btn btn-success" :disabled="!file">Importer</button>
+                    <button type="submit" class="btn btn-primary" :disabled="loading">
+                    Importer
+                    <span v-if="loading" class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+                    </button>
+
+                    <p v-if="loading" class="text-muted mt-2">Importation en cours...</p>
                 </div>
               </form>
             </div>
@@ -46,7 +46,7 @@
     </div>
 
     <!-- Tableau pour les agents en activité -->
-    <div v-if="status == 'activite'" id="tableau" class="overflow-x-scroll" style="height: 37rem; width: 163vh;">
+    <div v-if="status == 'activite'" id="tableau" class=" overflow-y-auto " style="height: 38rem;">
         <table class="table table-striped text-center">
             <thead>
                 <tr>
@@ -84,7 +84,7 @@
     </div>
 
     <!-- Tableau pour les retraités -->
-    <div v-if="status == 'retraite'" id="tabRetraite" class="overflow-x-scroll" style="height: 37rem; width: 163vh;">
+    <div v-if="status == 'retraite'" id="tabRetraite" class=" overflow-y-auto " style="height: 38rem;">
         <table class="table table-striped text-center">
             <thead>
                 <tr>
@@ -96,7 +96,6 @@
                     <th>Corps</th>
                     <th>Indice</th>
                     <th>Section</th>
-                    <th>Pension net</th>
                 </tr>
             </thead>
             <tbody>
@@ -109,7 +108,6 @@
                     <td>{{ retraite.codecorps }}</td>
                     <td>{{ retraite.indice }}</td>
                     <td>{{ retraite.codesection }}</td>
-                    <td>{{ formatNumber(retraite.pensionnet) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -136,6 +134,7 @@ export default {
             file: null,
             message: "", 
             messageType: "", 
+            loading: false,
         };
     },
     methods: {
@@ -217,48 +216,6 @@ export default {
       },
   
       async uploadAgent() {
-          if (!this.file) {
-              this.showMessage("Veuillez sélectionner un fichier avant d'importer.", "alert-danger");
-              return;
-          }
-
-          const formData = new FormData();
-          formData.append("file", this.file);
-
-          try {
-              // Supprimer les données existantes dans la table active
-              const supp = await axios.delete('http://localhost:3000/api/agent/active/delete');
-              if (supp.status === 200) {
-                  this.showMessage("Données supprimées avec succès.", "alert-success");
-              } else {
-                  this.showMessage("Échec de la suppression des données.", "alert-danger");
-                  return; // Arrêter l'exécution si la suppression échoue
-              }
-
-              // Importer le nouveau fichier
-              const response = await axios.post("http://localhost:3000/agent/active/upload", formData, {
-                  headers: {
-                      "Content-Type": "multipart/form-data",
-                  },
-              });
-
-              this.showMessage(response.data.message, "alert-success");
-              this.file = null; // Réinitialiser le fichier après importation réussie
-
-              // Fermer la modal après un court délai
-              setTimeout(() => {
-                  const importModal = new bootstrap.Modal(document.getElementById('importEx'));
-                  importModal.hide();
-              }, 1000);
-
-          } catch (error) {
-              console.error("Erreur lors de l'importation du fichier :", error.message);
-              this.showMessage("Erreur lors de l'importation du fichier.", "alert-danger");
-          }
-      },
-
-
-      async uploadRetraite() {
         if (!this.file) {
             this.showMessage("Veuillez sélectionner un fichier avant d'importer.", "alert-danger");
             return;
@@ -266,22 +223,23 @@ export default {
 
         const formData = new FormData();
         formData.append("file", this.file);
+        this.loading = true; // Activer le chargement
 
         try {
             // Supprimer les données existantes dans la table active
-            const supp = await axios.delete('http://localhost:3000/api/agent/retraite/delete');
+            const supp = await axios.delete('http://localhost:3000/api/agent/active/delete');
             if (supp.status === 200) {
-                this.showMessage("Données supprimées avec succès.", "alert-success");
+            this.showMessage("Données supprimées avec succès.", "alert-success");
             } else {
-                this.showMessage("Échec de la suppression des données.", "alert-danger");
-                return; // Arrêter l'exécution si la suppression échoue
+            this.showMessage("Échec de la suppression des données.", "alert-danger");
+            return; // Arrêter l'exécution si la suppression échoue
             }
 
             // Importer le nouveau fichier
-            const response = await axios.post("http://localhost:3000/agent/retraite/upload", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
+            const response = await axios.post("http://localhost:3000/agent/active/upload", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
             });
 
             this.showMessage(response.data.message, "alert-success");
@@ -289,15 +247,64 @@ export default {
 
             // Fermer la modal après un court délai
             setTimeout(() => {
-                const importModal = new bootstrap.Modal(document.getElementById('importEx'));
-                importModal.hide();
+            const importModal = new bootstrap.Modal(document.getElementById('importEx'));
+            importModal.hide();
             }, 1000);
 
         } catch (error) {
             console.error("Erreur lors de l'importation du fichier :", error.message);
             this.showMessage("Erreur lors de l'importation du fichier.", "alert-danger");
+        } finally {
+            this.loading = false; // Désactiver le chargement une fois terminé
         }
-    },
+        },
+
+
+
+        async uploadRetraite() {
+            if (!this.file) {
+                this.showMessage("Veuillez sélectionner un fichier avant d'importer.", "alert-danger");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", this.file);
+            this.loading = true; // Activer l'état de chargement
+
+            try {
+                // Supprimer les données existantes dans la table active
+                const supp = await axios.delete('http://localhost:3000/api/agent/retraite/delete');
+                if (supp.status === 200) {
+                this.showMessage("Données supprimées avec succès.", "alert-success");
+                } else {
+                this.showMessage("Échec de la suppression des données.", "alert-danger");
+                return; // Arrêter l'exécution si la suppression échoue
+                }
+
+                // Importer le nouveau fichier
+                const response = await axios.post("http://localhost:3000/agent/retraite/upload", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                });
+
+                this.showMessage(response.data.message, "alert-success");
+                this.file = null; // Réinitialiser le fichier après l'importation
+
+                // Fermer la modal après un court délai
+                setTimeout(() => {
+                const importModal = new bootstrap.Modal(document.getElementById('importEx'));
+                importModal.hide();
+                }, 1000);
+
+            } catch (error) {
+                console.error("Erreur lors de l'importation du fichier :", error.message);
+                this.showMessage("Erreur lors de l'importation du fichier.", "alert-danger");
+            } finally {
+                this.loading = false; // Désactiver l'état de chargement
+            }
+            },
+
 
   
       showMessage(msg, type) {

@@ -1,20 +1,10 @@
 
 .col-6.shadow{
-    height: 19rem;
-    margin-left: 8rem;
-    border-radius: 20px;
-}
-
-.col-3.shadow{
-    height: 19rem;
-    border-radius: 20px;
-    margin-left: 5rem;
+    height: auto;
 }
 
 #stat div{
-    height: 8.5rem;
-    text-align: center;
-    margin-left: 2.5rem;
+    height: auto;
 }
 
 #stat h6{
@@ -25,6 +15,7 @@
     color: white;
     margin-top: 10px;
 }
+
 #stat span{
     color: white;
     font-size: 50px;
@@ -32,10 +23,9 @@
 
 #pourcent div{
     text-align: center;
-    margin-left: 2.5rem;
-    text-shadow: 2px 4px 12px;
+    margin-left: 5rem;
+    text-shadow: 2px 4px 6px;
 }
-
 
 #pourcent span{
     color: rgb(0, 0, 0);
@@ -43,24 +33,4 @@
     margin-left: 20px;
 }
 
-.title2{
-    margin-top: 10px;
-    margin-left: 40%;
-}
-.title3{
-    margin-top: 10px;
-    margin-left: 110px;
-}
 
-#dossiers{
-    margin-top: 2rem;
-    margin-left: 5.5rem !important;
-}
-
-#graph {
-    height: 32rem;
-
-}
-#graph h5{
-    margin-left: 35%;
-}

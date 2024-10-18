@@ -51,7 +51,7 @@ const routes = [
       // Vérifiez si l'utilisateur est connecté et si le nom d'utilisateur est "chef"
       const user = JSON.parse(sessionStorage.getItem('user'));
   
-      if (user && user.username === 'chef') {
+      if (user && user.username === 'Admin') {
         // Si l'utilisateur est "chef", autorisez l'accès
         next();
       } else {
@@ -72,7 +72,7 @@ router.beforeEach((to, from, next) => {
   const isAuthenticated = !!sessionStorage.getItem('user'); // Vérifiez l'authentification de l'utilisateur
   
   // Vérifiez si l'utilisateur n'est pas authentifié et tente d'accéder à une autre route que /login
-  if (!isAuthenticated && to.path !== '/') {
+  if (!isAuthenticated && to.path !== '/' && to.path !== '/pwd') {
       next('/'); // Redirigez vers /login si l'utilisateur n'est pas connecté
   } else {
       next(); // Sinon, continuez la navigation normalement

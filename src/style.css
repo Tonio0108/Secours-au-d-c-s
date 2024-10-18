@@ -1,4 +1,4 @@
-@import url(./CSS/sideBar.css);
+@import url(./CSS/nav.css);
 @import url(../node_modules/bootstrap/dist/css/bootstrap.css);
 @import url(./CSS/Login.css);
 @import url(./CSS/stat.css);
@@ -16,29 +16,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-html,body {
-  margin: 0;
-  height: 100%;
-}
-
-#app {
-  height: 100%;
-  width: 100%;
-}
-
-#container{
-  display: grid;
-  grid-template-columns: auto 1fr;
-  height: 100%;
-  width: 100%;
-}
-
-
-#logo2{
-  position:absolute;
-  right: 10px;
-  top: 2px;
-}
 
 #title{
   text-align: center;
@@ -46,10 +23,6 @@ html,body {
   text-transform: uppercase;
   text-decoration: underline;
   text-shadow: 6px 5px 20px 
-}
-
-.grid-item{
-  height: 100%;
 }
 
 #searchBar,#form-secours{
@@ -63,6 +36,8 @@ html,body {
   margin-top: 0 !important;
   padding: 2rem;
   border: 0 !important;
+  background: linear-gradient(-45deg,#fcfcfc,#ffffff,#fcfcfc);
+  border: solid 1px #979797 !important;
 }
 
 #form-secours .form-control{
@@ -103,7 +78,7 @@ input::placeholder{
 
 #importB{
   position: absolute;
-  top: 3rem;
+  top: 6rem;
   margin-left: 3rem;
 }
 
@@ -167,7 +142,6 @@ label{
   vertical-align: top;
 }
 
-/* Equal width for both position columns */
 #decision td:first-child, #decision td:last-child {
   width: 50%;
   

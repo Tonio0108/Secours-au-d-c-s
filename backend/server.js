@@ -294,17 +294,26 @@ app.post('/agent/retraite/upload', upload.single('file'), async (req, res) => {
 });
 
 
-// Route pour ajouter un nouvel utilisateur
 app.post('/api/register', async (req, res) => {
-    const { username, fullname, im, password } = req.body; // Récupérer le nom d'utilisateur et le mot de passe depuis la requête
+    const { username, fullname, im, password } = req.body;
+    console.log('Requête reçue:', req.body); // Vérifiez les données reçues
 
-    // Vérifier si les informations sont fournies
+    // Vérifier les champs requis
     if (!username || !password) {
         return res.status(400).json({ message: 'Nom d\'utilisateur et mot de passe requis' });
     }
 
+    // Regex pour valider le mot de passe
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+        return res.status(400).json({
+            message: 'Le mot de passe doit comporter au moins 8 caractères, ' +
+                     'inclure une majuscule, une minuscule, un chiffre et un caractère spécial.'
+        });
+    }
+
     try {
-        // Vérifier si l'utilisateur existe déjà dans la base de données
+        // Vérifier si l'utilisateur existe déjà
         const userExists = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
 
         if (userExists.rows.length > 0) {
@@ -313,19 +322,20 @@ app.post('/api/register', async (req, res) => {
 
         // Hacher le mot de passe avant de l'enregistrer
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Insérer le nouvel utilisateur dans la base de données
         await pool.query(
             'INSERT INTO users (username, fullname, im, password, created) VALUES ($1, $2, $3, $4, CURRENT_DATE)',
             [username, fullname, im, hashedPassword]
         );
 
-        res.status(201).json({ message: 'Utilisateur créé avec succès' }); // Message de succès
+        res.status(201).json({ message: 'Utilisateur créé avec succès' });
     } catch (err) {
         console.error('Erreur lors de la création de l\'utilisateur:', err);
-        res.status(500).json({ message: 'Erreur du serveur' }); // Gestion des erreurs
+        res.status(500).json({ message: 'Erreur du serveur' });
     }
 });
+
+
+
 
 // Récupérer les agents en activité
 app.get('/api/users', async (req, res) => {
@@ -427,7 +437,7 @@ app.post('/api/change-password', async (req, res) => {
 
     // Vérifier si toutes les informations sont fournies
     if (!username || !oldPass || !newPass) {
-        return res.status(400).json({ message: 'Nom d\'utilisateur, ancien et nouveau mot de passe requis' });
+        return res.status(400).json({ message: 'Informations manquantes' });
     }
 
     try {
@@ -442,6 +452,14 @@ app.post('/api/change-password', async (req, res) => {
             const isMatch = await bcrypt.compare(oldPass, hashedPassword);
 
             if (isMatch) {
+                // Validation de la complexité du nouveau mot de passe
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                if (!passwordRegex.test(newPass)) {
+                    return res.status(400).json({
+                        message: 'Le nouveau mot de passe doit comporter au moins 8 caractères, une majuscule, un chiffre et un symbole spécial.'
+                    });
+                }
+
                 // Si l'ancien mot de passe est correct, hacher le nouveau mot de passe
                 const newHashedPassword = await bcrypt.hash(newPass, 10);
 
@@ -450,11 +468,12 @@ app.post('/api/change-password', async (req, res) => {
 
                 res.status(200).json({ message: 'Mot de passe changé avec succès' });
             } else {
-                // Si l'ancien mot de passe est incorrect
-                res.status(401).json({ message: 'Ancien mot de passe incorrect' });
+                // Message d'erreur général pour éviter de révéler trop d'informations
+                res.status(401).json({ message: 'Échec de l\'authentification' });
             }
         } else {
-            res.status(404).json({ message: 'Utilisateur non trouvé' });
+            // Message d'erreur général pour éviter de révéler trop d'informations
+            res.status(401).json({ message: 'Échec de l\'authentification' });
         }
     } catch (err) {
         console.error('Erreur lors du changement de mot de passe:', err);
@@ -696,7 +715,7 @@ app.post('/api/secours', async (req, res) => {
 app.get('/api/secours/list', async (req, res) => {
     try {
         const result = await pool.query(
-            'SELECT * FROM secours ORDER BY numero DESC LIMIT 2'
+            'SELECT * FROM secours ORDER BY numero DESC LIMIT 3'
         );
 
         res.setHeader('Content-Type', 'application/json');
@@ -712,8 +731,8 @@ app.delete('/api/secours/delete', async (req, res) => {
         const { date } = req.body;
 
         // Vérifier si un dossier existe pour ce beneficiaire et cet agent
-        const checkQuery = `SELECT * FROM secours WHERE date = $1`;
-        const checkResult = await pool.query(checkQuery, [imdef, beneficiaire]);
+        const checkQuery = `SELECT * FROM secours WHERE date::TEXT LIKE '%' || $1 || '%'`;
+        const checkResult = await pool.query(checkQuery, [date]);
 
         if (checkResult.rows.length === 0) {
             // Si le dossier n'existe pas, renvoyer un message
@@ -721,8 +740,8 @@ app.delete('/api/secours/delete', async (req, res) => {
         }
 
         // Supprimer le dossier correspondant
-        const deleteQuery = `DELETE FROM secours WHERE date = $1`;
-        await pool.query(deleteQuery, [imdef, beneficiaire]);
+        const deleteQuery = `DELETE FROM secours WHERE date::TEXT LIKE '%' || $1 || '%'`;
+        await pool.query(deleteQuery, [date]);
 
         res.status(200).json({ message: "Dossier supprimé avec succès" });
     } catch (err) {

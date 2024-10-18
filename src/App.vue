@@ -34,47 +34,50 @@ async function disconnect() {
     <welcome v-else-if="$route.path == '/welcome'"/>
     <Pwd v-else-if="$route.path == '/pwd'" />
     <users v-else-if="$route.path == '/users'"/>
-    <div v-else id="container">
-        <div class="grid-item">
-            <div class="sideBar">
-                <div id="header" class="d-flex ms-3">
-                    <img id="logo" src="./assets/LOGO EF.png" alt="logo" width="100px" height="100px">
-                    <div class="mt-4 ms-3">
-                        <h4>SRSP VATOVAVY</h4>
-                        <h6>SECOURS AU DECES</h6>
-                    </div>
-                </div>
-                <hr style="color: aliceblue;">
-                <div id="sidebar" class="text-center">
-                    <ul class="list-unstyled components mb-5">
-                        <li :class="{ active: $route.path === '/statistique' }">
-                            <RouterLink to="/statistique" class="nav-link">
-                                <img src="../../../../../ICONS/dashboard (1).png" alt="dash" class="shadow"> Statistique
+    <div v-else>
+        <nav class="navbar navbar-expand-lg navbar-light ">
+            <div class="container-fluid">
+                <RouterLink to="/statistique"  class="navbar-brand">
+                    <img src="./assets/LOGO EF.png" alt="logo" width="50" height="50" class="me-2">
+                    SRSP VATOVAVY
+                </RouterLink>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse ms-5" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <RouterLink to="/statistique" class="nav-link" :class="{ active: $route.path === '/statistique' }">
+                                <i class="bi bi-bar-chart-line me-2"></i> Statistique
                             </RouterLink>
                         </li>
-                        <li :class="{ active: $route.path === '/agents' }">
-                            <RouterLink to="/agents" class="nav-link">
-                                <img src="../../../../../ICONS/group.png" alt="agent" class="shadow me-3"> Agents de l'Etat
+                        <li class="nav-item">
+                            <RouterLink to="/agents" class="nav-link" :class="{ active: $route.path === '/agents' }">
+                                <i class="bi bi-people me-2"></i> Agents de l'État
                             </RouterLink>
                         </li>
-                        <li :class="{ active: $route.path === '/bareme' }">
-                            <RouterLink to="/bareme" class="nav-link">
-                                <img src="../../../../../ICONS/sold-out (2).png" alt="bareme" class="shadow me-3"> Bareme de solde
+                        <li class="nav-item">
+                            <RouterLink to="/bareme" class="nav-link" :class="{ active: $route.path === '/bareme' }">
+                                <i class="bi bi-cash-coin me-2"></i> Bareme de solde
                             </RouterLink>
                         </li>
-                        <li :class="{ active: $route.path === '/secours' || $route.path === '/decision' }">
-                            <RouterLink to="/secours" class="nav-link">
-                                <img src="../../../../../ICONS/documents.png" alt="secours" class="shadow me-3"> Secours au décès
+                        <li class="nav-item">
+                            <RouterLink to="/secours" class="nav-link" :class="{ active: $route.path === '/secours' || $route.path === '/decision' }">
+                                <i class="bi bi-file-earmark-text me-2"></i> Secours au décès
                             </RouterLink>
                         </li>
                     </ul>
-                    <button @click="disconnect" id="disconnect" class="nav-link mx-auto">Déconnexion</button>
+                    <button @click="disconnect" class="btn btn-outline-danger">Déconnexion</button>
                 </div>
             </div>
-        </div>
-        <div class="grid-item" id="content" style="width: 100%;">  
-            <RouterView />
-        </div>
+        </nav>
+
+        <Transition>
+            <div>  
+                <RouterView />
+            </div>
+        </Transition>
+
     </div>
 </template>
 

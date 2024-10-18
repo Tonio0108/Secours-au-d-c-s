@@ -1,10 +1,6 @@
 
 
 <template>
-    <header class="" style="width: 100%;">
-        <h3 id="title">Secours au décès</h3>
-        <img id="logo2" src="../assets/Logo_hd_MEF-PETIT-2.png" alt=""  width="130px" height="80px">
-    </header>
 
     <div class="boutons">
         <div class="prev">
@@ -28,7 +24,7 @@
                 v-if="index === 4" 
                 class="btn btn-outline-success" 
                 @click="index++" 
-                :disabled="beneficiaire === '' || cin === '' || status === ''">
+                :disabled="beneficiaire === '' || cin === '' || statut === ''">
                 suivant
                 <i class="bi bi-arrow-right"></i>
             </button>
@@ -40,7 +36,7 @@
         </div>
         
     </div>
-    <div id="searchBarBarem" class="shadow " style="height: 33rem;">
+    <div  class="shadow-sm rounded-3 mt-4" style="height: 33rem; width: 99%; margin-left: 8px; border: solid 1px rgb(182, 182, 182)">
         <div class="row">
             <div class="col-11 mx-auto">
                 <div class="timeline-container">
@@ -197,7 +193,7 @@
                     <button class="btn btn-outline-danger mt-4 ms-5">Non</button>
                 </div>
             </div>
-            <div v-if = "this.mode" id="form-secours" class="p-4 rounded-4 shadow overflow-y-scroll" style="height: 20rem; width: 50rem; margin-left: 23rem;">
+            <div v-if = "this.mode" id="form-secours" class=" mx-auto p-4 rounded-3 shadow overflow-y-auto" style="height: 20rem; width: 50rem; ">
                     <form @submit.prevent="addSecours">
 
                         <div class="row mb-3">
@@ -310,55 +306,48 @@
         </div>
         
         <div v-if="this.index == 4"  class="shadow text-center" id="Question4">
-            <div class="shadow p-4 rounded-4" style="height: 20rem; width: 45rem; margin-left: 1rem;">
-                <h5 style=" text-decoration: underline">informations sur notre défunt(e) :</h5>
-                <div class="row mt-4">
-                    <div class="col-md-12">
-                        <p><strong>IM :</strong> {{ this.imDefunt }}</p>
-                    </div>
+            <div class="col-5 mx-auto rounded-3 shadow" style="height: 20rem;">
+                <div class="row mx-auto rounded-3 text-center bg-dark text-light pt-3" style=" height:10.5rem">
+                    <h5>{{ this.nomDefunt }}</h5>
+                    <h5> {{ this.fonction }}</h5>
+                    <h5>titulaire de l'IM {{ this.imDefunt.replace(/(.{3})(?=.)/g, "$1 ") }}</h5>
                 </div>
                 <div class="row">
-                    <div class="col-md-12">
-                        <p><strong>Nom et prenoms :</strong> {{ this.nomDefunt }}</p>
+                    <div class="row ms-3 mt-3">
+                        <div class="col-md-4">
+                            <h6>Grade : {{ this.grade }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Indice : {{ this.indice }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Categorie : {{ this.categorie }}</h6>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <p><strong>Grade :</strong> {{ this.grade }}</p>
+                    <div class="row ms-3 mt-3">
+                        <div class="col-md-4">
+                            <h6>bareme : {{ this.dateBar }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Section : {{ this.section }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Décès : {{ formatDate(this.dateDec) }}</h6>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <p><strong>Indice :</strong> {{ this.indice }}</p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>Categorie :</strong> {{ this.categorie }}</p>
-                    </div>
+                    <div class="row ms-3 mt-3">
 
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <p><strong>bareme :</strong> {{ this.dateBar }}</p>
+                        <div class="col-md-4">
+                            <h6>Acte : {{ this.acte }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>du : {{ formatDate(this.dateActe) }}</h6>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <p><strong>Section :</strong> {{ this.section }}</p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>Décès :</strong> {{ formatDate(this.dateDec) }}</p>
-                    </div>
-                </div>
-                <div class="row">
-
-                    <div class="col-md-4">
-                        <p><strong>Acte :</strong> {{ this.acte }}</p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>du :</strong> {{ formatDate(this.dateActe) }}</p>
-                    </div>
-                </div>
-
+                </div>    
             </div>
-            <div id="form-secours" class="shadow-sm p-4 rounded-4" style="height: 20rem; width: 45rem; margin-left: 1rem;">
+            <div id="form-secours" class=" col-5 mx-auto shadow rounded" style="height: 20rem; width: 45rem; ">
                 <form @submit.prevent="addSecours">
-
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="benefic" class="form-label">Nom et Prénoms du bénéficiaire :</label>
@@ -411,87 +400,67 @@
         </div>
         
         <div v-if="this.index == 5"  class="shadow text-center" id="Question4">
-            <div class="shadow p-4 rounded-4" style="height: 20rem; width: 50rem; margin-left: 1rem;">
-                <h5 style=" text-decoration: underline">informations sur notre défunt(e) :</h5>
-                <div class="row mt-4">
-                    <div class="col-md-12">
-                        <p><strong>IM :</strong> {{ this.imDefunt }}</p>
-                    </div>
+            <div class="col-5 mx-auto rounded-3 shadow" style="height: 20rem;">
+                <div class="row mx-auto rounded-3 text-center bg-dark text-light pt-3" style=" height:10.5rem">
+                    <h5>{{ this.nomDefunt }}</h5>
+                    <h5> {{ this.fonction }}</h5>
+                    <h5>titulaire de l'IM {{ this.imDefunt.replace(/(.{3})(?=.)/g, "$1 ") }}</h5>
                 </div>
                 <div class="row">
-                    <div class="col-md-12">
-                        <p><strong>Nom et prenoms :</strong> {{ this.nomDefunt }}</p>
+                    <div class="row ms-3 mt-3">
+                        <div class="col-md-4">
+                            <h6>Grade : {{ this.grade }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Indice : {{ this.indice }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Categorie : {{ this.categorie }}</h6>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <p><strong>Grade :</strong> {{ this.grade }}</p>
+                    <div class="row ms-3 mt-3">
+                        <div class="col-md-4">
+                            <h6>bareme : {{ this.dateBar }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Section : {{ this.section }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Décès : {{ formatDate(this.dateDec) }}</h6>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <p><strong>Indice :</strong> {{ this.indice }}</p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>Categorie :</strong> {{ this.categorie }}</p>
-                    </div>
+                    <div class="row ms-3 mt-3">
 
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <p><strong>bareme :</strong> {{ this.dateBar }}</p>
+                        <div class="col-md-4">
+                            <h6>Acte : {{ this.acte }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>du : {{ formatDate(this.dateActe) }}</h6>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <p><strong>Section :</strong> {{ this.section }}</p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>Décès :</strong> {{ formatDate(this.dateDec) }}</p>
-                    </div>
-                </div>
-                <div class="row">
-
-                    <div class="col-md-4">
-                        <p><strong>Acte :</strong> {{ this.acte }}</p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>du :</strong> {{ formatDate(this.dateActe) }}</p>
-                    </div>
-                </div>
-
+                </div>    
             </div>
-            <div id="form-secours" class=" shadow-sm p-4 rounded-4" style="height: 15rem; width: 40rem; margin-left: 1rem;">
-                <h5 style=" text-decoration: underline">informations sur le bénéficiaire :</h5>
-                <div class="row mt-4">
-                    <div class="col-md-12">
-                        <p><strong>Nom et prenoms :</strong> {{ this.beneficiaire }}</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <p><strong>Qualité :</strong> {{ this.statut }}</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>CIN :</strong> {{ (this.cin).replace(/(.{3})(?=.)/g, "$1 ") }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Du :</strong> {{ formatDate(this.datecin) }}</p>
-                    </div>
 
+            <div class=" row col-5 mx-auto rounded-3 shadow" style="height: 20rem;">
+                <div class="row mx-auto rounded-3 text-center bg-success text-light pt-3" style=" height: 10.5rem; ">
+                    <h5>{{ this.beneficiaire }}</h5>
+                    <h5> {{ this.statut }}</h5>
+                    <h5>titulaire du CIN {{ this.cin.replace(/(.{3})(?=.)/g, "$1 ") }}</h5>
                 </div>
-                <div class="row">
 
-                    <div class="col-md-6">
-                        <p><strong>Adresse :</strong> {{ this.domicile }}</p>
-                    </div>
+                <div class="row ms-3 mt-3 text-center">
+                    <h6>Délivrance du CIN : {{ formatDate(this.datecin) }} </h6>
+                    <h6>Adresse : {{ this.domicile }}</h6>
                 </div>
-            </div>        
+            </div>
+
         </div>
 
     </div>
 
 
         <!-- Tableau pour les secours -->
-        <div id="tableau" class="overflow-scroll" style="height: 17rem; width: 163vh;">
+        <div  class="overflow-y-auto" style="height: 17rem;">
         <input v-model="recherche" type='text' class = "form-control" placeholder="bénéficiaire ou nom de l'agent ou IM" @input="searchSecours">
         <table id="sec" class="table table-striped text-center mt-3" style="table-layout: fixed; width: 100%;">
             <thead>
@@ -522,7 +491,7 @@
                     <td><button @click="editSecours(secours.beneficiaire,secours.cin, formatDateToYMD(secours.datecin), secours.adresse, secours.qualite, secours.nomdef, secours.imdef, secours.status, secours.activite, secours.grade, secours.indice, secours.categorie, secours.bareme, secours.section, formatDateToYMD(secours.datedec), secours.acte, formatDateToYMD(secours.dateacte), secours.date)" class="btn btn-outline-primary">
                         <i class="bi bi-pencil"></i>
                         </button>
-                        <button @click="deleteSecours(secours.imdef,secours.beneficiaire,)" class="btn btn-outline-danger ms-3">
+                        <button @click="deleteSecours(formatDateWithMilliseconds(secours.date))" class="btn btn-outline-danger ms-3">
                         <i class="bi bi-trash"></i>
                         </button>
                     </td>
@@ -572,7 +541,7 @@
                                         <strong>Aux ayants droits de : {{ nomDefunt }}</strong>
                                     </td>
                                     <td width="200" style="padding-left: 15px; font-size: medium">
-                                        <strong>IM : {{ imDefunt }}</strong>
+                                        <strong>IM : {{ imDefunt.replace(/(.{3})(?=.)/g, "$1 ") }}</strong>
                                     </td>
                                 </tr>
                             </tbody>
@@ -758,7 +727,7 @@
                         </tr>
                         <tr>
                             <td><b>Titulaire de l'IM :</b></td>
-                            <td>{{ imDefunt }}</td>
+                            <td>{{ imDefunt.replace(/(.{3})(?=.)/g, "$1 ") }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -844,7 +813,7 @@
                 indice: '',
                 beneficiaire: '',
                 cin: '',
-                datecin: '',
+                datecin: null,
                 domicile: '',
                 v500: 0,
                 v501: 0,
@@ -862,9 +831,9 @@
                 v608: 0,
                 v609: 0,
                 v610: 0,
-                dateDec: '',
+                dateDec: null,
                 acte: '',
-                dateActe: '',
+                dateActe: null,
                 statut: '',
                 plusieursLit: false,
                 activite: 'En activité',
@@ -1086,7 +1055,7 @@
                 }
             },
 
-            async deleteSecours(imdef, beneficiaire) {
+            async deleteSecours(date) {
                 try {
                 // Confirmation de la suppression
                 const confirmation = confirm("Êtes-vous sûr de vouloir supprimer ce dossier ?");
@@ -1095,8 +1064,7 @@
                 // Envoi de la requête de suppression
                 const response = await axios.delete('http://localhost:3000/api/secours/delete', {
                     data: {
-                    imdef,
-                    beneficiaire
+                        date
                     }
                 });
 
@@ -1104,7 +1072,7 @@
                 this.showMessage(response.data.message,'alert-success');
 
                 // Mettre à jour la liste après suppression
-                this.list = this.list.filter(secours => !(secours.imdef === imdef && secours.beneficiaire === beneficiaire));
+                this.fetchSecours();
 
                 } catch (error) {
                 console.error("Erreur lors de la suppression du dossier :", error);
@@ -1312,7 +1280,7 @@
                 const newSecours = {
                     beneficiaire: this.beneficiaire,
                     cin: this.cin,
-                    datecin: this.datecin || '',
+                    datecin: this.datecin || null,
                     adresse: this.domicile,
                     qualite: this.statut,
                     nomdef: this.nomDefunt,
@@ -1324,9 +1292,9 @@
                     categorie: this.categorie,
                     bareme: this.dateBar,
                     section: this.section,
-                    datedec: this.dateDec || '',
+                    datedec: this.dateDec || null,
                     acte: this.acte,
-                    dateacte: this.dateActe || '',
+                    dateacte: this.dateActe || null,
                     date: this.date ? this.formatDateWithMilliseconds(this.date) : null, // Formater si la date existe
                 };
 
@@ -1440,6 +1408,14 @@
   border: solid 1px 
 }
 
+#Question4 h4{
+    text-transform : uppercase;
+}
+
+#Question4 h5{
+    text-transform : uppercase;
+}
+
 #Question3{
   width: 55rem;
   height: 26rem;
@@ -1497,14 +1473,15 @@
 
 .prev{
     position: absolute;
-    bottom: 20rem;
-    left: 23rem;
+    bottom: 21rem;
+    left: 2rem;
 }
 
 .next{
     position: absolute;
-    bottom: 20rem;
+    bottom: 21rem;
     right: 2rem;
 }
+
 
 </style>
