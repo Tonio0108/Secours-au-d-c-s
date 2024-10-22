@@ -52,7 +52,7 @@ const routes = [
       const user = JSON.parse(sessionStorage.getItem('user'));
   
       if (user && user.username === 'Admin') {
-        // Si l'utilisateur est "chef", autorisez l'accès
+        
         next();
       } else {
         // Sinon, redirigez vers une autre page, par exemple la page de connexion

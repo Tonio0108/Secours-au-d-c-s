@@ -125,7 +125,7 @@
             this.showMessage("Tous les champs de recherche sont requis.", "alert-danger");
             return;
           }
-          const response = await axios.get(`http://localhost:3000/api/bareme/${categorie}/${indice}/${annee}`);
+          const response = await axios.get(`http://192.168.0.109:3000/api/bareme/${categorie}/${indice}/${annee}`);
           this.bareme = response.data; // Assignez les données reçues à votre variable bareme
           if (this.bareme.length === 0) {
             this.showMessage("Aucun bareme trouvé pour les critères spécifiés.", "alert-warning");
@@ -140,7 +140,7 @@
 
         async fetchCategorie() {
             try {
-                const categorie = await axios.get('http://localhost:3000/categorie');
+                const categorie = await axios.get('http://192.168.0.109:3000/categorie');
                 this.categorie2 = categorie.data;
             } catch (error) {
                 alert('Erreur lors de la récupération des données des retraités');
@@ -150,7 +150,7 @@
 
         async fetchYearBar() {
             try {
-                const year = await axios.get('http://localhost:3000/bareme/year');
+                const year = await axios.get('http://192.168.0.109:3000/bareme/year');
                 this.years = year.data;
             } catch (error) {
                 alert('Erreur lors de la récupération des données des retraités');
@@ -189,7 +189,7 @@
         this.loading = true; // Activer le chargement
 
         try {
-          const response = await axios.post("http://localhost:3000/bareme/upload", formData, {
+          const response = await axios.post("http://192.168.0.109:3000/bareme/upload", formData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },

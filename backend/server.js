@@ -806,5 +806,5 @@ app.listen(port, '0.0.0.0', () => {
 });*/
 
 app.listen(port, () => {
-    console.log(`Backend server is running on http://localhost:${port}`);
+    console.log(`Backend server is running on http://192.168.0.109:${port}`);
 })

@@ -49,7 +49,7 @@ export default {
         async connect() {
             try {
                 //recuperation du mot de passe dans la base de donnée et comparaison entre le mdp saisi
-                const response = await axios.post('http://localhost:3000/api/login', { username: this.username,
+                const response = await axios.post('http://192.168.0.109:3000/api/login', { username: this.username,
                 password: this.passwordIn
                 });
 

@@ -1,5 +1,4 @@
 
-
 <template>
 
     <div class="boutons">
@@ -46,28 +45,28 @@
                     <!-- Étapes avec étiquettes au-dessus des cercles -->
                     <div class="step-wrapper">
                         <div class="timeline-label">Type de l'agent</div>
-                        <div v-if="this.index >=1" :class="this.index == 1 ? isActive : '' " class="timeline-step" style="background-color:rgb(194, 191, 191) ;">
+                        <div @click = "this.index = 1" v-if="this.index >=1" :class="this.index == 1 ? isActive : '' " class="timeline-step" style="background-color:rgb(194, 191, 191) ;">
                         </div>
                     </div>
                     <div v-if="this.activite == 'En activité'" class="step-wrapper">
                         <div class="timeline-label">Status</div>
-                        <div v-if="this.index >=2" :class="this.index == 2 ? isActive : '' " class="timeline-step" style="background-color:rgb(128, 128, 128) ;"></div>
+                        <div @click = "this.index = 2" v-if="this.index >=2" :class="this.index == 2 ? isActive : '' " class="timeline-step" style="background-color:rgb(128, 128, 128) ;"></div>
                     </div>
                     <div v-if="this.activite == 'Retraité'" class="step-wrapper">
                         <div class="timeline-label">Caisse</div>
-                        <div v-if="this.index >=2" :class="this.index == 2 ? isActive : '' " class="timeline-step" style="background-color:rgb(128, 128, 128) ;"></div>
+                        <div @click = "this.index = 2" v-if="this.index >=2" :class="this.index == 2 ? isActive : '' " class="timeline-step" style="background-color:rgb(128, 128, 128) ;"></div>
                     </div>
                     <div class="step-wrapper">
                         <div class="timeline-label">Recherche</div>
-                        <div v-if="this.index >=3" :class="this.index == 3 ? isActive : '' " class="timeline-step" style="background-color:rgb(100, 100, 100) ;"></div>
+                        <div @click = "this.index = 3" v-if="this.index >=3" :class="this.index == 3 ? isActive : '' " class="timeline-step" style="background-color:rgb(100, 100, 100) ;"></div>
                     </div>
                     <div class="step-wrapper">
                         <div class="timeline-label">Bénéficiaire</div>
-                        <div v-if="this.index >=4" :class="this.index == 4 ? isActive : '' " class="timeline-step" style="background-color:rgb(60, 60, 60) ;"></div>
+                        <div @click = "this.index = 4" v-if="this.index >=4" :class="this.index == 4 ? isActive : '' " class="timeline-step" style="background-color:rgb(60, 60, 60) ;"></div>
                     </div>
                     <div class="step-wrapper">
                         <div class="timeline-label">Aperçu</div>
-                        <div v-if="this.index >=5" :class="this.index == 5 ? isActive : '' " class="timeline-step" style="background-color:rgb(0, 0, 0) ;"></div>
+                        <div @click = "this.index = 5" v-if="this.index >=5" :class="this.index == 5 ? isActive : '' " class="timeline-step" style="background-color:rgb(0, 0, 0) ;"></div>
                     </div>
                 </div>
             </div>
@@ -107,8 +106,9 @@
         :isVisible="isModal2Visible"
         :title="modalTitle"
         :message="modalMessage"
-        @confirm="handleConfirm2"
-        @close="closeModal2"
+        @generate-decision ="handleConfirm2"
+        @generate-ed ="generateED"
+        @close = "closeModal2"
         />
 
         <div v-if="this.index == 3"  class="shadow text-center" id="Question2">
@@ -329,7 +329,7 @@
                             <h6>bareme : {{ this.dateBar }}</h6>
                         </div>
                         <div class="col-md-4">
-                            <h6>Section : {{ this.section }}</h6>
+                            <h6>Section : {{ this.section.replace(/^(\d{2})(\d{3})(\d{3})$/, "$1 - $2 - $3") }}</h6>
                         </div>
                         <div class="col-md-4">
                             <h6>Décès : {{ formatDate(this.dateDec) }}</h6>
@@ -423,7 +423,7 @@
                             <h6>bareme : {{ this.dateBar }}</h6>
                         </div>
                         <div class="col-md-4">
-                            <h6>Section : {{ this.section }}</h6>
+                            <h6>Section : {{ this.section.replace(/^(\d{2})(\d{3})(\d{3})$/, "$1 - $2 - $3") }}</h6>
                         </div>
                         <div class="col-md-4">
                             <h6>Décès : {{ formatDate(this.dateDec) }}</h6>
@@ -461,7 +461,7 @@
 
         <!-- Tableau pour les secours -->
         <div  class="overflow-y-auto" style="height: 17rem;">
-        <input v-model="recherche" type='text' class = "form-control" placeholder="bénéficiaire ou nom de l'agent ou IM" @input="searchSecours">
+        <input v-model="recherche2" type='text' class = "form-control" placeholder="bénéficiaire ou nom de l'agent ou IM" @input="searchSecours">
         <table id="sec" class="table table-striped text-center mt-3" style="table-layout: fixed; width: 100%;">
             <thead>
                 <tr>
@@ -569,7 +569,7 @@
                                             </tr>
                                             <tr>
                                                 <td>Imputation Budgétaire</td>
-                                                <td>: {{ section }}</td>
+                                                <td>: {{ section.replace(/^(\d{2})(\d{3})(\d{3})$/, "$1 - $2 - $3") }}</td>
                                             </tr>
                                             <tr>
                                                 <td>Grade ou Emploi</td>
@@ -619,52 +619,52 @@
                                         au montant d' <strong>Ar {{ parseFloat(montant).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2})}}</strong><br>
                                         &lt;&lt; {{ this.nombreEnLettre(montant).toUpperCase()  }} &gt;&gt;<br>
                                         <strong v-if="activite == 'En activité' && !plusieursLit">(
-                                        <b v-if="v500 > 0">{{ parseFloat(v500).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v501 > 0">{{ parseFloat(v501).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v502 > 0">{{ parseFloat(v502).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v503 > 0">{{ parseFloat(v503).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v506 > 0">{{ parseFloat(v506).toLocaleString('fr-FR') }}</b>
+                                        <b v-if="v500 > 0">{{ parseFloat(v500).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v501 > 0"> + {{ parseFloat(v501).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v502 > 0"> + {{ parseFloat(v502).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v503 > 0"> + {{ parseFloat(v503).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v506 > 0"> + {{ parseFloat(v506).toLocaleString('fr-FR') }}</b>
                                         * {{ multi }}) = {{ parseFloat(montant).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                                         </strong>
 
                                         <strong v-if="activite == 'En activité' && plusieursLit">
                                         [ ( 
-                                        <b v-if="v500 > 0">{{ parseFloat(v500).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v501 > 0">{{ parseFloat(v501).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v502 > 0">{{ parseFloat(v502).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v503 > 0">{{ parseFloat(v503).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v506 > 0">{{ parseFloat(v506).toLocaleString('fr-FR') }}</b>
+                                        <b v-if="v500 > 0">{{ parseFloat(v500).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v501 > 0"> + {{ parseFloat(v501).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v502 > 0"> + {{ parseFloat(v502).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v503 > 0"> + {{ parseFloat(v503).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v506 > 0"> + {{ parseFloat(v506).toLocaleString('fr-FR') }}</b>
                                          * {{ multi }})  / {{ nbLit }} ] = {{ parseFloat(montant).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                                         </strong>
 
                                         <strong v-if="activite == 'Retraité' && !plusieursLit">(
-                                        <b v-if="v600 > 0">{{ parseFloat(v600).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v601 > 0">{{ parseFloat(v601).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v602 > 0">{{ parseFloat(v602).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v603 > 0">{{ parseFloat(v603).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v604 > 0">{{ parseFloat(v604).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v605 > 0">{{ parseFloat(v605).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v606 > 0">{{ parseFloat(v606).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v607 > 0">{{ parseFloat(v607).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v608 > 0">{{ parseFloat(v608).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v609 > 0">{{ parseFloat(v609).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v610 > 0">{{ parseFloat(v610).toLocaleString('fr-FR') }}</b>
-                                         * {{ multi }}) = {{ parseFloat(montant).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                                        <b v-if="v600 > 0">{{ parseFloat(v600).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v601 > 0"> + {{ parseFloat(v601).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v602 > 0"> + {{ parseFloat(v602).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v603 > 0"> + {{ parseFloat(v603).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v604 > 0"> + {{ parseFloat(v604).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v605 > 0"> + {{ parseFloat(v605).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v606 > 0"> + {{ parseFloat(v606).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v607 > 0"> + {{ parseFloat(v607).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v608 > 0"> + {{ parseFloat(v608).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v609 > 0"> + {{ parseFloat(v609).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v610 > 0"> + {{ parseFloat(v610).toLocaleString('fr-FR') }}</b>
+                                         ) * {{ multi }} = {{ parseFloat(montant).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                                         </strong>
 
                                         <strong v-if="activite == 'Retraité' && plusieursLit">
                                         [(
-                                        <b v-if="v600 > 0">{{ parseFloat(v600).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v601 > 0">{{ parseFloat(v601).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v602 > 0">{{ parseFloat(v602).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v603 > 0">{{ parseFloat(v603).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v604 > 0">{{ parseFloat(v604).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v605 > 0">{{ parseFloat(v605).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v606 > 0">{{ parseFloat(v606).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v607 > 0">{{ parseFloat(v607).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v608 > 0">{{ parseFloat(v608).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v609 > 0">{{ parseFloat(v609).toLocaleString('fr-FR') }} + </b>
-                                        <b v-if="v610 > 0">{{ parseFloat(v610).toLocaleString('fr-FR') }}</b>
+                                        <b v-if="v600 > 0">{{ parseFloat(v600).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v601 > 0"> + {{ parseFloat(v601).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v602 > 0"> + {{ parseFloat(v602).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v603 > 0"> + {{ parseFloat(v603).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v604 > 0"> + {{ parseFloat(v604).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v605 > 0"> + {{ parseFloat(v605).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v606 > 0"> + {{ parseFloat(v606).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v607 > 0"> + {{ parseFloat(v607).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v608 > 0"> + {{ parseFloat(v608).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v609 > 0"> + {{ parseFloat(v609).toLocaleString('fr-FR') }}  </b>
+                                        <b v-if="v610 > 0"> + {{ parseFloat(v610).toLocaleString('fr-FR') }}</b>
                                         ) * {{ multi }}] / {{ nbLit }} = {{ parseFloat(montant).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                                         </strong>
                                          égal à {{ nombreEnLettre2(multi) }} mois de la <span v-if="this.activite === 'Retraité'">pension</span><span v-else>solde</span>  du défunt {{ nomDefunt }} ,
@@ -767,7 +767,7 @@
                     <strong>ARRETE LE PRESENT ETAT DE DECOMPTE A LA SOMME DE {{ nombreEnLettre(montant).toUpperCase() }}</strong>
                 </p>
 
-                <p style = "text-align: right; margin-top: 1rem;">Mananjary, le____________________________________</p>
+                <p style = "text-align: right; margin-top: 1rem;">Mananjary, le _______________________</p>
                 </div>
 
 
@@ -801,6 +801,7 @@
                 resultRetraite: [],
                 resultSecours:[],
                 recherche: '',
+                recherche2: '',
                 list: [],
                 message:'',
                 messageType:'',
@@ -881,7 +882,7 @@
                 }
 
                 // Vérification si activite est "En activité" et fonction est "Contractuelle"
-                if (this.activite === "En activité" && this.fonction === "Contractuelle") {
+                if (this.activite === "En activité" && this.fonction === "Contractuel") {
                 return "de l’article 35 de la loi n° 94-025 du 17-11-94 relative au statut général des Agents non encadrés de l’Etat";
                 }
 
@@ -917,7 +918,7 @@
                 return 12;
                 }
 
-                if ((this.activite === "En activité" && this.fonction === "Contractuelle") || this.activite === "Retraité") {
+                if ((this.activite === "En activité" && this.fonction === "Contractuel") || this.activite === "Retraité") {
                 return 3;
                 }
 
@@ -981,7 +982,7 @@
             async searchActive() {
             if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                 try {
-                const response = await axios.get(`http://localhost:3000/api/agent/active/${this.recherche}`);  // Utilise `this.recherche`
+                const response = await axios.get(`http://192.168.0.109:3000/api/agent/active/${this.recherche}`);  // Utilise `this.recherche`
                 this.resultActive = response.data;
                 } catch (error) {
                 console.error('Erreur lors de la recherche:', error);
@@ -995,7 +996,7 @@
             async searchRetraite() {
                 if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                     try {
-                    const response = await axios.get(`http://localhost:3000/api/agent/retraite/${this.recherche}`);  // Utilise `this.recherche`
+                    const response = await axios.get(`http://192.168.0.109:3000/api/agent/retraite/${this.recherche}`);  // Utilise `this.recherche`
                     this.resultRetraite = response.data;
                     } catch (error) {
                     console.error('Erreur lors de la recherche:', error);
@@ -1007,9 +1008,9 @@
             },
 
             async searchSecours() {
-                if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
+                if (this.recherche2.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                     try {
-                    const response = await axios.get(`http://localhost:3000/api/secours/recherche/${this.recherche}`);  // Utilise `this.recherche`
+                    const response = await axios.get(`http://192.168.0.109:3000/api/secours/recherche/${this.recherche2}`);  // Utilise `this.recherche`
                     this.resultSecours = response.data;
                     } catch (error) {
                     console.error('Erreur lors de la recherche:', error);
@@ -1046,7 +1047,7 @@
 
             async fetchSecours(){
                 try{
-                    const res = await axios.get('http://localhost:3000/api/secours/list')
+                    const res = await axios.get('http://192.168.0.109:3000/api/secours/list')
                     this.list = res.data
                     console.log(this.list)
                 }catch(err){
@@ -1062,7 +1063,7 @@
                 if (!confirmation) return;
 
                 // Envoi de la requête de suppression
-                const response = await axios.delete('http://localhost:3000/api/secours/delete', {
+                const response = await axios.delete('http://192.168.0.109:3000/api/secours/delete', {
                     data: {
                         date
                     }
@@ -1118,11 +1119,6 @@
             handleConfirm2() {
                 this.generateDecision();
 
-                // Passer une fonction anonyme à setTimeout
-                setTimeout(() => {
-                    this.generateED(); // Appel de generateED après 2 secondes
-                }, 2000);
-
                 setTimeout(() => {
                     this.addSecours(); // Appel de generateED après 2 secondes
                 }, 3000);
@@ -1164,7 +1160,7 @@
             
             async fetchBareme(categorie, indice,annee) {
             try {
-                const response = await axios.get(`http://localhost:3000/api/bareme/${categorie}/${indice}/${annee}`);
+                const response = await axios.get(`http://192.168.0.109:3000/api/bareme/${categorie}/${indice}/${annee}`);
                 let bareme = response.data;
                 console.log('Données reçues:', bareme); // Ajoutez ce log pour voir la structure de bareme
 
@@ -1186,7 +1182,7 @@
 
         async fetchYearBar() {
             try {
-                const year = await axios.get('http://localhost:3000/bareme/year');
+                const year = await axios.get('http://192.168.0.109:3000/bareme/year');
                 this.years = year.data;
             } catch (error) {
                 alert('Erreur lors de la récupération des données des retraités');
@@ -1196,7 +1192,7 @@
 
         async fetchCategorie() {
             try {
-                const categorie = await axios.get('http://localhost:3000/categorie');
+                const categorie = await axios.get('http://192.168.0.109:3000/categorie');
                 this.categorie2 = categorie.data;
             } catch (error) {
                 alert('Erreur lors de la récupération des données des retraités');
@@ -1304,7 +1300,7 @@
                 }
 
                 try {
-                    const response = await axios.post('http://localhost:3000/api/secours', newSecours);
+                    const response = await axios.post('http://192.168.0.109:3000/api/secours', newSecours);
                     this.showMessage(response.data.message, 'alert-success');
                     this.fetchSecours()
                 } catch (error) {
@@ -1426,8 +1422,8 @@
   border: solid 1px 
 }
 .orange{
-    background-color: orange !important
-}
+    background-color: orange !important;
+    border: solid 4px rgb(82, 82, 82)}
         /* Style pour les cercles */
 .timeline-step {
     width: 40px;
