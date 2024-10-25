@@ -692,7 +692,7 @@
                 </div>
             </div>
 
-            <div ref="ed">
+            <div ref="ed" cla>
 
                 <div class=" head text-center" style=" margin-top: 0.5rem;">
                     <img id="logo" src="../assets/LOGO EF.png" alt="logo" width="100px" height="100px">
