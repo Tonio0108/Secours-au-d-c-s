@@ -1,40 +1,6 @@
 
 <template>
 
-    <div class="boutons">
-        <div class="prev">
-            <button class="btn btn-outline-danger" :disabled="this.index == 1" @click="this.index--, this.mode = false">
-                <i class="bi bi-arrow-left"></i>
-                précédent
-            </button>
-        </div>
-        <div class="next">
-            <button 
-                v-if="index === 3" 
-                class="btn btn-outline-success" 
-                @click="index++" 
-                :disabled="index < 3 || 
-                imDefunt === '' || nomDefunt === '' || acte === ''">
-                suivant
-                <i class="bi bi-arrow-right"></i>
-            </button>
-
-            <button 
-                v-if="index === 4" 
-                class="btn btn-outline-success" 
-                @click="index++" 
-                :disabled="beneficiaire === '' || cin === '' || statut === ''">
-                suivant
-                <i class="bi bi-arrow-right"></i>
-            </button>
-
-            <button v-if="this.index == 5" class="btn btn-outline-success" @click="openModal2('Impression')">
-                <i class="bi bi-printer"></i>
-                Impression
-            </button>
-        </div>
-        
-    </div>
     <div  class="shadow-sm rounded-3 mt-4" style="height: 33rem; width: 99%; margin-left: 8px; border: solid 1px rgb(182, 182, 182)">
         <div class="row">
             <div class="col-11 mx-auto">
@@ -73,389 +39,424 @@
         </div>
 
         <!-- Première question : En activité ou retraité -->
-        <div v-if="index == 1" class="shadow text-center" id="Question1">
-        <h4>En activité ou retraité ?</h4>
-        <button class="btn btn-outline-success mt-4" @click="openModal('En activité', 'En activité')">En activité</button>
-        <button class="btn btn-outline-danger mt-4 ms-5" @click="openModal('Retraité', 'Retraité')">Retraité</button>
-        </div>
-
-        <!-- Deuxième question pour ceux en activité : Fonctionnaire ou Contractuel -->
-        <div v-if="index == 2 && activite == 'En activité'" class="shadow text-center" id="Question1">
-        <h4>Fonctionnaire ou Contractuel ?</h4>
-        <button class="btn btn-outline-success mt-4" @click="openModal('Fonctionnaire', 'Fonctionnaire')">Fonctionnaire</button>
-        <button class="btn btn-outline-danger mt-4 ms-5" @click="openModal('Contractuel', 'Contractuel')">Contractuel</button>
-        </div>
-
-        <!-- Deuxième question pour les retraités : CPR ou CRCM -->
-        <div v-if="index == 2 && activite == 'Retraité'" class="shadow text-center" id="Question1">
-        <h4>CPR ou CRCM ?</h4>
-        <button class="btn btn-outline-success mt-4" @click="openModal('CPR', 'CPR')">CPR</button>
-        <button class="btn btn-outline-danger mt-4 ms-5" @click="openModal('CRCM', 'CRCM')">CRCM</button>
-        </div>
-
-        <!-- Composant modal réutilisable -->
-        <modal
-        :isVisible="isModalVisible"
-        :title="modalTitle"
-        :message="modalMessage"
-        @confirm="handleConfirm"
-        @close="closeModal"
-        />
-
-        <modal2
-        :isVisible="isModal2Visible"
-        :title="modalTitle"
-        :message="modalMessage"
-        @generate-decision ="handleConfirm2"
-        @generate-ed ="generateED"
-        @close = "closeModal2"
-        />
-
-        <div v-if="this.index == 3"  class="shadow text-center" id="Question2">
-            <form v-if="!this.mode" class="text-center" @submit.prevent="submitForm">
-                <h6 >Tapez l'IM ou le nom pour rechercher :</h6>
-                <input v-if="activite == 'En activité'" v-model="recherche" placeholder="...IM ou nom..." type="text" class="form-control mb-3">
-                <input v-else-if="activite == 'Retraité'" v-model="recherche" placeholder="...IM ou nom..." type="text" class="form-control mb-3">
-            </form>
-            <div v-if="!this.mode" class="mt-4 overflow-y-scroll" style="margin-left: 1rem; height: 12rem;">
-
-                <table v-if="activite == 'En activité' && resultActive.length" class="table table-striped text-center">
-                    <thead>
-                        <tr>
-                            <th>Matricule</th>
-                            <th>Nom</th>
-                            <th>Prénoms</th>
-                            <th>Corps</th>
-                            <th>Grade</th>
-                            <th>Categorie</th>
-                            <th>Indice</th>
-                            <th>Section</th>
-                            <th>action</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr v-for="active in resultActive" :key="active.matricule">
-                        <td>{{ active.matricule }}</td>
-                        <td>{{ active.nom }}</td>
-                        <td>{{ active.prenoms }}</td>
-                        <td>{{ active.codecorps }}</td>
-                        <td>{{ active.codegrade }}</td>
-                        <td>{{ active.codecategorie }}</td>
-                        <td>{{ active.indice }}</td>
-                        <td>{{ active.codesection }}</td>
-                        <td><button 
-                            @click="sendToForm(active.matricule, active.nom,active.prenoms,active.codegrade,active.codecategorie,active.indice,active.codesection)"
-                            class="btn btn btn-outline-info">
-                             <i class="bi bi-check2" style="font-size: 1rem;"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    </tbody>
-
-                </table>
-
-                
-                <table v-if="this.activite == 'Retraité' && resultRetraite.length"class="table table-striped text-center">
-                    <thead>
-                        <tr>
-                            <th>Matricule</th>
-                            <th>Nom et prénoms</th>
-                            <th>Corps</th>
-                            <th>Grade</th>
-                            <th>Indice</th>
-                            <th>Section</th>
-                            <th>action</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr v-for="retraite in resultRetraite" :key="retraite.matriculepension">
-                            <td>{{ retraite.matriculepension }}</td>
-                            <td>{{ retraite.nomprenoms }}</td>
-                            <td>{{ retraite.codecorps }}</td>
-                            <td>{{ retraite.codegrade }}</td>
-                            <td>{{ retraite.indice }}</td>
-                            <td>{{ retraite.codesection }}</td>
-                            <td><button 
-                            @click="sendToForm2(retraite.matriculepension,retraite.nomprenoms,retraite.codegrade,retraite.indice,retraite.codesection)"
-                            class="btn btn btn-outline-info">
-                             <i class="bi bi-check2" style="font-size: 1rem;"></i>
-                            </button>
-                        </td>
-                        </tr>
-                    </tbody>
-
-                </table>
-                <div v-if="showError">
-                    <h5 class="text-warning">{{ erreur }}</h5>
-                    <button class="btn btn-outline-success mt-4" @click="chmod()">Oui</button>
-                    <button class="btn btn-outline-danger mt-4 ms-5">Non</button>
-                </div>
+        <div class="row">
+            <div v-if="index == 1" class="shadow text-center  mx-auto" id="Question1">
+                <h4>En activité ou retraité ?</h4>
+                <button class="btn btn-outline-success mt-4" @click="openModal('En activité', 'En activité')">En activité</button>
+                <button class="btn btn-outline-danger mt-4 ms-5" @click="openModal('Retraité', 'Retraité')">Retraité</button>
             </div>
-            <div v-if = "this.mode" id="form-secours" class=" mx-auto p-4 rounded-3 shadow overflow-y-auto" style="height: 20rem; width: 50rem; ">
+
+            <!-- Deuxième question pour ceux en activité : Fonctionnaire ou Contractuel -->
+            <div v-if="index == 2 && activite == 'En activité'" class="shadow text-center mx-auto" id="Question1">
+                <h4>Fonctionnaire ou Contractuel ?</h4>
+                <button class="btn btn-outline-success mt-4" @click="openModal('Fonctionnaire', 'Fonctionnaire')">Fonctionnaire</button>
+                <button class="btn btn-outline-danger mt-4 ms-5" @click="openModal('Contractuel', 'Contractuel')">Contractuel</button>
+            </div>
+
+            <!-- Deuxième question pour les retraités : CPR ou CRCM -->
+            <div v-if="index == 2 && activite == 'Retraité'" class="shadow text-center mx-auto" id="Question1">
+                <h4>CPR ou CRCM ?</h4>
+                <button class="btn btn-outline-success mt-4" @click="openModal('CPR', 'CPR')">CPR</button>
+                <button class="btn btn-outline-danger mt-4 ms-5" @click="openModal('CRCM', 'CRCM')">CRCM</button>
+            </div>
+
+            <!-- Composant modal réutilisable -->
+            <modal
+            :isVisible="isModalVisible"
+            :title="modalTitle"
+            :message="modalMessage"
+            @confirm="handleConfirm"
+            @close="closeModal"
+            />
+
+            <modal2
+            :isVisible="isModal2Visible"
+            :title="modalTitle"
+            :message="modalMessage"
+            @generate-decision ="handleConfirm2"
+            @generate-ed ="generateED"
+            @close = "closeModal2"
+            />
+
+            <div v-if="this.index == 3"  class="shadow text-center mx-auto" id="Question2">
+                <form v-if="!this.mode" class="text-center" @submit.prevent="submitForm">
+                    <h6 >Tapez l'IM ou le nom pour rechercher :</h6>
+                    <input v-if="activite == 'En activité'" v-model="recherche" placeholder="...IM ou nom..." type="text" class="form-control mb-3">
+                    <input v-else-if="activite == 'Retraité'" v-model="recherche" placeholder="...IM ou nom..." type="text" class="form-control mb-3">
+                </form>
+                <div v-if="!this.mode" class="mt-4 overflow-y-scroll" style="margin-left: 1rem; height: 12rem;">
+
+                    <table v-if="activite == 'En activité' && resultActive.length" class="table table-striped text-center">
+                        <thead>
+                            <tr>
+                                <th>Matricule</th>
+                                <th>Nom</th>
+                                <th>Prénoms</th>
+                                <th>Corps</th>
+                                <th>Grade</th>
+                                <th>Categorie</th>
+                                <th>Indice</th>
+                                <th>Section</th>
+                                <th>action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr v-for="active in resultActive" :key="active.matricule">
+                            <td>{{ active.matricule }}</td>
+                            <td>{{ active.nom }}</td>
+                            <td>{{ active.prenoms }}</td>
+                            <td>{{ active.codecorps }}</td>
+                            <td>{{ active.codegrade }}</td>
+                            <td>{{ active.codecategorie }}</td>
+                            <td>{{ active.indice }}</td>
+                            <td>{{ active.codesection }}</td>
+                            <td><button 
+                                @click="sendToForm(active.matricule, active.nom,active.prenoms,active.codegrade,active.codecategorie,active.indice,active.codesection)"
+                                class="btn btn btn-outline-info">
+                                <i class="bi bi-check2" style="font-size: 1rem;"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+
+                    
+                    <table v-if="this.activite == 'Retraité' && resultRetraite.length"class="table table-striped text-center">
+                        <thead>
+                            <tr>
+                                <th>Matricule</th>
+                                <th>Nom et prénoms</th>
+                                <th>Corps</th>
+                                <th>Grade</th>
+                                <th>Indice</th>
+                                <th>Section</th>
+                                <th>action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr v-for="retraite in resultRetraite" :key="retraite.matriculepension">
+                                <td>{{ retraite.matriculepension }}</td>
+                                <td>{{ retraite.nomprenoms }}</td>
+                                <td>{{ retraite.codecorps }}</td>
+                                <td>{{ retraite.codegrade }}</td>
+                                <td>{{ retraite.indice }}</td>
+                                <td>{{ retraite.codesection }}</td>
+                                <td><button 
+                                @click="sendToForm2(retraite.matriculepension,retraite.nomprenoms,retraite.codegrade,retraite.indice,retraite.codesection)"
+                                class="btn btn btn-outline-info">
+                                <i class="bi bi-check2" style="font-size: 1rem;"></i>
+                                </button>
+                            </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                    <div v-if="showError">
+                        <h5 class="text-warning">{{ erreur }}</h5>
+                        <button class="btn btn-outline-success mt-4" @click="chmod()">Oui</button>
+                        <button class="btn btn-outline-danger mt-4 ms-5">Non</button>
+                    </div>
+                </div>
+                <div v-if = "this.mode" id="form-secours" class=" mx-auto p-4 rounded-3 shadow overflow-y-auto" style="height: 20rem; width: 50rem; ">
+                        <form @submit.prevent="addSecours">
+
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <label for="matricule" class="form-label">Matricule du defunt(e) :</label>
+                                    <input  v-model="imDefunt" type="text" class="form-control" style="width: 10rem;">
+                                </div>
+                                <div class="col-md-9">
+                                    <label for="name" class="form-label">Nom et Prenoms du defunt(e) :</label>
+                                    <input :class="class" v-model="nomDefunt" type="text" class="form-control shadow-sm" style="width: 34rem;">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <label for="grade" class="form-label">Grade :</label>
+                                    <input v-model="grade" type="text" class="form-control" style="width: 10rem;">
+                                </div>
+                                <div class="col-md-3" v-if="this.activite == 'En activité'">
+                                    <label for="categorie" class="form-label">Categorie :</label>
+                                    <select v-model="categorie" name="annee" class="form-select">
+                                        <option v-for="cat in categorie2" :value="cat.categorie"> {{ cat.categorie }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="indice" class="form-label">Indice :</label>
+                                    <input v-model="indice" type="number" class="form-control" style="width: 10rem;">
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label  for="annee" class="form-label">Année du bareme utilisé :</label>
+                                    <select v-model="dateBar" name="annee" class="form-select">
+                                        <option v-for="year in years" :value="year.date"> {{ year.date }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3" v-if="this.activite === 'Retraité'">
+                                <div class="col-md-2">
+                                    <label for="budget" class="form-label">600 :</label>
+                                    <input v-model="v600" type="number" class="form-control">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="imputation" class="form-label">601 :</label>
+                                    <input v-model="v601" type="number" class="form-control">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="imputation" class="form-label">602 :</label>
+                                    <input v-model="v602" type="number" class="form-control">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="imputation" class="form-label">603 :</label>
+                                    <input v-model="v603" type="number" class="form-control">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="imputation" class="form-label">604 :</label>
+                                    <input v-model="v604" type="number" class="form-control">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="imputation" class="form-label">605 :</label>
+                                    <input v-model="v605" type="number" class="form-control">
+                                </div>
+                            </div>
+
+                            
+                            <div class="row mb-3" v-if="this.activite === 'Retraité'">
+                                <div class="col-md-2">
+                                    <label for="budget" class="form-label">606 :</label>
+                                    <input v-model="v606" type="number" class="form-control">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="imputation" class="form-label">607 :</label>
+                                    <input v-model="v607" type="number" class="form-control">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="imputation" class="form-label">608 :</label>
+                                    <input v-model="v608" type="number" class="form-control">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="imputation" class="form-label">609 :</label>
+                                    <input v-model="v609" type="number" class="form-control">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="imputation" class="form-label">610 :</label>
+                                    <input v-model="v610" type="number" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <label for="section" class="form-label">Section :</label>
+                                    <input v-model="section" type="text" class="form-control" style="width: 10rem;">
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="dateacte" class="form-label">Date de décès :</label>
+                                    <input :class="class" v-model="dateDec" type="date" class="form-control" style="width: 10rem;">
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="acte" class="form-label">Acte de décès n° :</label>
+                                    <input v-model="acte" type="number" class="form-control" :class="class" style="width: 10rem;">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="dateacte" class="form-label">du :</label>
+                                    <input v-model="dateActe" type="date" class="form-control" :class="class" style="width: 10rem;">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+            </div>
+            
+            <div v-if="this.index == 4"  class="shadow text-center mx-auto" id="Question4">
+                <div class="col-5 mx-auto rounded-3 shadow" style="height: 20rem;">
+                    <div class="row mx-auto rounded-3 text-center bg-dark text-light pt-3" style=" height:10.5rem">
+                        <h5>{{ this.nomDefunt }}</h5>
+                        <h5> {{ this.fonction }}</h5>
+                        <h5>titulaire de l'IM {{ this.imDefunt.replace(/(.{3})(?=.)/g, "$1 ") }}</h5>
+                    </div>
+                    <div class="row">
+                        <div class="row ms-3 mt-3">
+                            <div class="col-md-4">
+                                <h6>Grade : {{ this.grade }}</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Indice : {{ this.indice }}</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Categorie : {{ this.categorie }}</h6>
+                            </div>
+                        </div>
+                        <div class="row ms-3 mt-3">
+                            <div class="col-md-4">
+                                <h6>bareme : {{ this.dateBar }}</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Section : {{ this.section.replace(/^(\d{2})(\d{3})(\d{3})$/, "$1 - $2 - $3") }}</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Décès : {{ formatDate(this.dateDec) }}</h6>
+                            </div>
+                        </div>
+                        <div class="row ms-3 mt-3">
+
+                            <div class="col-md-4">
+                                <h6>Acte : {{ this.acte }}</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>du : {{ formatDate(this.dateActe) }}</h6>
+                            </div>
+                        </div>
+                    </div>    
+                </div>
+                <div id="form-secours" class=" col-5 mx-auto shadow rounded" style="height: 20rem; width: 45rem; ">
                     <form @submit.prevent="addSecours">
-
                         <div class="row mb-3">
-                            <div class="col-md-3">
-                                <label for="matricule" class="form-label">Matricule du defunt(e) :</label>
-                                <input  v-model="imDefunt" type="text" class="form-control" style="width: 10rem;">
+                            <div class="col-md-6">
+                                <label for="benefic" class="form-label">Nom et Prénoms du bénéficiaire :</label>
+                                <input :class="class" v-model="beneficiaire" type="text" class="form-control">
                             </div>
-                            <div class="col-md-9">
-                                <label for="name" class="form-label">Nom et Prenoms du defunt(e) :</label>
-                                <input :class="class" v-model="nomDefunt" type="text" class="form-control shadow-sm" style="width: 34rem;">
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-3">
-                                <label for="grade" class="form-label">Grade :</label>
-                                <input v-model="grade" type="text" class="form-control" style="width: 10rem;">
-                            </div>
-                            <div class="col-md-3" v-if="this.activite == 'En activité'">
-                                <label for="categorie" class="form-label">Categorie :</label>
-                                <select v-model="categorie" name="annee" class="form-select">
-                                    <option v-for="cat in categorie2" :value="cat.categorie"> {{ cat.categorie }}</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="indice" class="form-label">Indice :</label>
-                                <input v-model="indice" type="number" class="form-control" style="width: 10rem;">
-                            </div>
-
-                            <div class="col-md-3">
-                                <label  for="annee" class="form-label">Année du bareme utilisé :</label>
-                                <select v-model="dateBar" name="annee" class="form-select">
-                                    <option v-for="year in years" :value="year.date"> {{ year.date }}</option>
+                            <div class="col-md-6">
+                                <label for="nature" class="form-label">Qualité du bénéficiaire :</label>
+                                <select :class="class" v-model="statut" class="form-select" style="width: 20rem;">
+                                    <option value="veuf">veuf</option>
+                                    <option value="veuve">veuve</option>
+                                    <option value="veuf et tuteur d’un enfant mineur">veuf et tuteur d’un enfant mineur</option>
+                                    <option value="veuve et tutrice d’un enfant mineur">veuve et tutrice d’un enfant mineur</option>
+                                    <option value="veuf et tuteur des enfants mineurs">veuf et tuteur des enfants mineurs</option>
+                                    <option value="veuve et tutrice des enfants mineurs">veuve et tutrice des enfants mineurs</option>
+                                    <option value="tuteur d'un enfant mineur">tuteur d'un enfant mineur</option>
+                                    <option value="tutrice d'un enfant mineur">tutrice d'un enfant mineur</option>
+                                    <option value="tuteur des enfants mineurs">tuteur des enfants mineurs</option>
+                                    <option value="tutrice des enfants mineurs">tutrice des enfants mineurs</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="row mb-3" v-if="this.activite === 'Retraité'">
-                            <div class="col-md-2">
-                                <label for="budget" class="form-label">600 :</label>
-                                <input v-model="v600" type="number" class="form-control">
-                            </div>
-                            <div class="col-md-2">
-                                <label for="imputation" class="form-label">601 :</label>
-                                <input v-model="v601" type="number" class="form-control">
-                            </div>
-                            <div class="col-md-2">
-                                <label for="imputation" class="form-label">602 :</label>
-                                <input v-model="v602" type="number" class="form-control">
-                            </div>
-                            <div class="col-md-2">
-                                <label for="imputation" class="form-label">603 :</label>
-                                <input v-model="v603" type="number" class="form-control">
-                            </div>
-                            <div class="col-md-2">
-                                <label for="imputation" class="form-label">604 :</label>
-                                <input v-model="v604" type="number" class="form-control">
-                            </div>
-                            <div class="col-md-2">
-                                <label for="imputation" class="form-label">605 :</label>
-                                <input v-model="v605" type="number" class="form-control">
-                            </div>
-                        </div>
 
-                        
-                        <div class="row mb-3" v-if="this.activite === 'Retraité'">
-                            <div class="col-md-2">
-                                <label for="budget" class="form-label">606 :</label>
-                                <input v-model="v606" type="number" class="form-control">
+                        <div class="row mb-3">
+                            <div class="col-md-6 ms">
+                                <label for="cin" class="form-label">CIN du bénéficiaire :</label>
+                                <input v-model="cin" type="text" class="form-control">
                             </div>
-                            <div class="col-md-2">
-                                <label for="imputation" class="form-label">607 :</label>
-                                <input v-model="v607" type="number" class="form-control">
-                            </div>
-                            <div class="col-md-2">
-                                <label for="imputation" class="form-label">608 :</label>
-                                <input v-model="v608" type="number" class="form-control">
-                            </div>
-                            <div class="col-md-2">
-                                <label for="imputation" class="form-label">609 :</label>
-                                <input v-model="v609" type="number" class="form-control">
-                            </div>
-                            <div class="col-md-2">
-                                <label for="imputation" class="form-label">610 :</label>
-                                <input v-model="v610" type="number" class="form-control">
+                            <div class="col-md-6">
+                                <label for="datecin" class="form-label">Délivré le :</label>
+                                <input v-model="datecin" type="date" class="form-control">
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            <div class="col-md-3">
-                                <label for="section" class="form-label">Section :</label>
-                                <input v-model="section" type="text" class="form-control" style="width: 10rem;">
+                            <div class="col-md-6">
+                                <label for="adresse" class="form-label">Adresse du bénéficiaire :</label>
+                                <input v-model="domicile" type="text" class="form-control">
                             </div>
-
-                            <div class="col-md-3">
-                                <label for="dateacte" class="form-label">Date de décès :</label>
-                                <input :class="class" v-model="dateDec" type="date" class="form-control" style="width: 10rem;">
-                            </div>
-
-                            <div class="col-md-3">
-                                <label for="acte" class="form-label">Acte de décès n° :</label>
-                                <input v-model="acte" type="number" class="form-control" :class="class" style="width: 10rem;">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="dateacte" class="form-label">du :</label>
-                                <input v-model="dateActe" type="date" class="form-control" :class="class" style="width: 10rem;">
+                            <div class="col-md-6 d-flex">
+                                <div class="form-check form-check-inline"> 
+                                    <input v-model="plusieursLit" type="checkbox" id="lit" value="pluralite" class="form-check-input" style="width: 30px; height: 30px; margin-top: 34px;">
+                                    <label for="lit" class="form-check-label ms-4" style="margin-top: 38px;">Pluralité de lit</label>                        
+                                </div>
+                                <input v-model="nbLit" v-if="plusieursLit" type="number" class="form-control mt-4" style="width: 70px; height: 40px">
                             </div>
                         </div>
+
                     </form>
                 </div>
-
-        </div>
-        
-        <div v-if="this.index == 4"  class="shadow text-center" id="Question4">
-            <div class="col-5 mx-auto rounded-3 shadow" style="height: 20rem;">
-                <div class="row mx-auto rounded-3 text-center bg-dark text-light pt-3" style=" height:10.5rem">
-                    <h5>{{ this.nomDefunt }}</h5>
-                    <h5> {{ this.fonction }}</h5>
-                    <h5>titulaire de l'IM {{ this.imDefunt.replace(/(.{3})(?=.)/g, "$1 ") }}</h5>
-                </div>
-                <div class="row">
-                    <div class="row ms-3 mt-3">
-                        <div class="col-md-4">
-                            <h6>Grade : {{ this.grade }}</h6>
-                        </div>
-                        <div class="col-md-4">
-                            <h6>Indice : {{ this.indice }}</h6>
-                        </div>
-                        <div class="col-md-4">
-                            <h6>Categorie : {{ this.categorie }}</h6>
-                        </div>
-                    </div>
-                    <div class="row ms-3 mt-3">
-                        <div class="col-md-4">
-                            <h6>bareme : {{ this.dateBar }}</h6>
-                        </div>
-                        <div class="col-md-4">
-                            <h6>Section : {{ this.section.replace(/^(\d{2})(\d{3})(\d{3})$/, "$1 - $2 - $3") }}</h6>
-                        </div>
-                        <div class="col-md-4">
-                            <h6>Décès : {{ formatDate(this.dateDec) }}</h6>
-                        </div>
-                    </div>
-                    <div class="row ms-3 mt-3">
-
-                        <div class="col-md-4">
-                            <h6>Acte : {{ this.acte }}</h6>
-                        </div>
-                        <div class="col-md-4">
-                            <h6>du : {{ formatDate(this.dateActe) }}</h6>
-                        </div>
-                    </div>
-                </div>    
             </div>
-            <div id="form-secours" class=" col-5 mx-auto shadow rounded" style="height: 20rem; width: 45rem; ">
-                <form @submit.prevent="addSecours">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="benefic" class="form-label">Nom et Prénoms du bénéficiaire :</label>
-                            <input :class="class" v-model="beneficiaire" type="text" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="nature" class="form-label">Qualité du bénéficiaire :</label>
-                            <select :class="class" v-model="statut" class="form-select" style="width: 20rem;">
-                                <option value="veuf">veuf</option>
-                                <option value="veuve">veuve</option>
-                                <option value="veuf et tuteur d’un enfant mineur">veuf et tuteur d’un enfant mineur</option>
-                                <option value="veuve et tutrice d’un enfant mineur">veuve et tutrice d’un enfant mineur</option>
-                                <option value="veuf et tuteur des enfants mineurs">veuf et tuteur des enfants mineurs</option>
-                                <option value="veuve et tutrice des enfants mineurs">veuve et tutrice des enfants mineurs</option>
-                                <option value="tuteur d'un enfant mineur">tuteur d'un enfant mineur</option>
-                                <option value="tutrice d'un enfant mineur">tutrice d'un enfant mineur</option>
-                                <option value="tuteur des enfants mineurs">tuteur des enfants mineurs</option>
-                                <option value="tutrice des enfants mineurs">tutrice des enfants mineurs</option>
-                            </select>
-                        </div>
+            
+            <div v-if="this.index == 5"  class="shadow text-center mx-auto" id="Question4">
+                <div class="col-5 mx-auto rounded-3 shadow" style="height: 20rem;">
+                    <div class="row mx-auto rounded-3 text-center bg-dark text-light pt-3" style=" height:10.5rem">
+                        <h5>{{ this.nomDefunt }}</h5>
+                        <h5> {{ this.fonction }}</h5>
+                        <h5>titulaire de l'IM {{ this.imDefunt.replace(/(.{3})(?=.)/g, "$1 ") }}</h5>
                     </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6 ms">
-                            <label for="cin" class="form-label">CIN du bénéficiaire :</label>
-                            <input v-model="cin" type="text" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="datecin" class="form-label">Délivré le :</label>
-                            <input v-model="datecin" type="date" class="form-control">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="adresse" class="form-label">Adresse du bénéficiaire :</label>
-                            <input v-model="domicile" type="text" class="form-control">
-                        </div>
-                        <div class="col-md-6 d-flex">
-                            <div class="form-check form-check-inline"> 
-                                <input v-model="plusieursLit" type="checkbox" id="lit" value="pluralite" class="form-check-input" style="width: 30px; height: 30px; margin-top: 34px;">
-                                <label for="lit" class="form-check-label ms-4" style="margin-top: 38px;">Pluralité de lit</label>                        
+                    <div class="row">
+                        <div class="row ms-3 mt-3">
+                            <div class="col-md-4">
+                                <h6>Grade : {{ this.grade }}</h6>
                             </div>
-                            <input v-model="nbLit" v-if="plusieursLit" type="number" class="form-control mt-4" style="width: 70px; height: 40px">
+                            <div class="col-md-4">
+                                <h6>Indice : {{ this.indice }}</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Categorie : {{ this.categorie }}</h6>
+                            </div>
                         </div>
+                        <div class="row ms-3 mt-3">
+                            <div class="col-md-4">
+                                <h6>bareme : {{ this.dateBar }}</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Section : {{ this.section.replace(/^(\d{2})(\d{3})(\d{3})$/, "$1 - $2 - $3") }}</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Décès : {{ formatDate(this.dateDec) }}</h6>
+                            </div>
+                        </div>
+                        <div class="row ms-3 mt-3">
+
+                            <div class="col-md-4">
+                                <h6>Acte : {{ this.acte }}</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>du : {{ formatDate(this.dateActe) }}</h6>
+                            </div>
+                        </div>
+                    </div>    
+                </div>
+
+                <div class=" row col-5 mx-auto rounded-3 shadow" style="height: 20rem;">
+                    <div class="row mx-auto rounded-3 text-center bg-success text-light pt-3" style=" height: 10.5rem; ">
+                        <h5>{{ this.beneficiaire }}</h5>
+                        <h5> {{ this.statut }}</h5>
+                        <h5>titulaire du CIN {{ this.cin.replace(/(.{3})(?=.)/g, "$1 ") }}</h5>
                     </div>
 
-                </form>
+                    <div class="row ms-3 mt-3 text-center">
+                        <h6>Délivrance du CIN : {{ formatDate(this.datecin) }} </h6>
+                        <h6>Adresse : {{ this.domicile }}</h6>
+                    </div>
+                </div>
+
             </div>
         </div>
-        
-        <div v-if="this.index == 5"  class="shadow text-center" id="Question4">
-            <div class="col-5 mx-auto rounded-3 shadow" style="height: 20rem;">
-                <div class="row mx-auto rounded-3 text-center bg-dark text-light pt-3" style=" height:10.5rem">
-                    <h5>{{ this.nomDefunt }}</h5>
-                    <h5> {{ this.fonction }}</h5>
-                    <h5>titulaire de l'IM {{ this.imDefunt.replace(/(.{3})(?=.)/g, "$1 ") }}</h5>
+
+        <div class="row">
+                <div class="col-6">
+                    <button class="btn btn-outline-danger mt-4 ms-2" :disabled="this.index == 1" @click="this.index--, this.mode = false">
+                        <i class="bi bi-arrow-left"></i>
+                        précédent
+                    </button>
                 </div>
-                <div class="row">
-                    <div class="row ms-3 mt-3">
-                        <div class="col-md-4">
-                            <h6>Grade : {{ this.grade }}</h6>
-                        </div>
-                        <div class="col-md-4">
-                            <h6>Indice : {{ this.indice }}</h6>
-                        </div>
-                        <div class="col-md-4">
-                            <h6>Categorie : {{ this.categorie }}</h6>
-                        </div>
-                    </div>
-                    <div class="row ms-3 mt-3">
-                        <div class="col-md-4">
-                            <h6>bareme : {{ this.dateBar }}</h6>
-                        </div>
-                        <div class="col-md-4">
-                            <h6>Section : {{ this.section.replace(/^(\d{2})(\d{3})(\d{3})$/, "$1 - $2 - $3") }}</h6>
-                        </div>
-                        <div class="col-md-4">
-                            <h6>Décès : {{ formatDate(this.dateDec) }}</h6>
-                        </div>
-                    </div>
-                    <div class="row ms-3 mt-3">
+                <div class="col-6 text-end">
+                    <button 
+                        v-if="index === 3" 
+                        class="btn btn-outline-success mt-4 me-2" 
+                        @click="index++" 
+                        :disabled="index < 3 || 
+                        imDefunt === '' || nomDefunt === '' || acte === ''">
+                        suivant
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
 
-                        <div class="col-md-4">
-                            <h6>Acte : {{ this.acte }}</h6>
-                        </div>
-                        <div class="col-md-4">
-                            <h6>du : {{ formatDate(this.dateActe) }}</h6>
-                        </div>
-                    </div>
-                </div>    
-            </div>
+                    <button 
+                        v-if="index === 4" 
+                        class="btn btn-outline-success mt-4 me-2" 
+                        @click="index++" 
+                        :disabled="beneficiaire === '' || cin === '' || statut === ''">
+                        suivant
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
 
-            <div class=" row col-5 mx-auto rounded-3 shadow" style="height: 20rem;">
-                <div class="row mx-auto rounded-3 text-center bg-success text-light pt-3" style=" height: 10.5rem; ">
-                    <h5>{{ this.beneficiaire }}</h5>
-                    <h5> {{ this.statut }}</h5>
-                    <h5>titulaire du CIN {{ this.cin.replace(/(.{3})(?=.)/g, "$1 ") }}</h5>
+                    <button v-if="this.index == 5" class="btn btn-outline-success mt-4 me-2" @click="openModal2('Impression')">
+                        <i class="bi bi-printer"></i>
+                        Impression
+                    </button>
                 </div>
-
-                <div class="row ms-3 mt-3 text-center">
-                    <h6>Délivrance du CIN : {{ formatDate(this.datecin) }} </h6>
-                    <h6>Adresse : {{ this.domicile }}</h6>
-                </div>
-            </div>
-
         </div>
-
     </div>
 
 
@@ -488,11 +489,11 @@
                     <td>{{ secours.status }}</td>
                     <td>{{ formatDate(secours.datedec) }}</td>
 
-                    <td><button @click="editSecours(secours.beneficiaire,secours.cin, formatDateToYMD(secours.datecin), secours.adresse, secours.qualite, secours.nomdef, secours.imdef, secours.status, secours.activite, secours.grade, secours.indice, secours.categorie, secours.bareme, secours.section, formatDateToYMD(secours.datedec), secours.acte, formatDateToYMD(secours.dateacte), secours.date)" class="btn btn-outline-primary">
-                        <i class="bi bi-pencil"></i>
+                    <td><button @click="editSecours(secours.beneficiaire,secours.cin, formatDateToYMD(secours.datecin), secours.adresse, secours.qualite, secours.nomdef, secours.imdef, secours.status, secours.activite, secours.grade, secours.indice, secours.categorie, secours.bareme, secours.section, formatDateToYMD(secours.datedec), secours.acte, formatDateToYMD(secours.dateacte), secours.date)" class="btn btn-sm">
+                        <i class="bi bi-pencil text-primary"></i>
                         </button>
-                        <button @click="deleteSecours(formatDateWithMilliseconds(secours.date))" class="btn btn-outline-danger ms-3">
-                        <i class="bi bi-trash"></i>
+                        <button @click="deleteSecours(formatDateWithMilliseconds(secours.date))" class="btn btn-sm ms-3">
+                        <i class="bi bi-trash text-danger"></i>
                         </button>
                     </td>
                 </tr>
@@ -982,7 +983,7 @@
             async searchActive() {
             if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                 try {
-                const response = await axios.get(`http://192.168.0.109:3000/api/agent/active/${this.recherche}`);  // Utilise `this.recherche`
+                const response = await axios.get(`http://192.168.0.10:3000/api/agent/active/${this.recherche}`);  // Utilise `this.recherche`
                 this.resultActive = response.data;
                 } catch (error) {
                 console.error('Erreur lors de la recherche:', error);
@@ -996,7 +997,7 @@
             async searchRetraite() {
                 if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                     try {
-                    const response = await axios.get(`http://192.168.0.109:3000/api/agent/retraite/${this.recherche}`);  // Utilise `this.recherche`
+                    const response = await axios.get(`http://192.168.0.10:3000/api/agent/retraite/${this.recherche}`);  // Utilise `this.recherche`
                     this.resultRetraite = response.data;
                     } catch (error) {
                     console.error('Erreur lors de la recherche:', error);
@@ -1010,7 +1011,7 @@
             async searchSecours() {
                 if (this.recherche2.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                     try {
-                    const response = await axios.get(`http://192.168.0.109:3000/api/secours/recherche/${this.recherche2}`);  // Utilise `this.recherche`
+                    const response = await axios.get(`http://192.168.0.10:3000/api/secours/recherche/${this.recherche2}`);  // Utilise `this.recherche`
                     this.resultSecours = response.data;
                     } catch (error) {
                     console.error('Erreur lors de la recherche:', error);
@@ -1047,7 +1048,7 @@
 
             async fetchSecours(){
                 try{
-                    const res = await axios.get('http://192.168.0.109:3000/api/secours/list')
+                    const res = await axios.get('http://192.168.0.10:3000/api/secours/list')
                     this.list = res.data
                     console.log(this.list)
                 }catch(err){
@@ -1063,7 +1064,7 @@
                 if (!confirmation) return;
 
                 // Envoi de la requête de suppression
-                const response = await axios.delete('http://192.168.0.109:3000/api/secours/delete', {
+                const response = await axios.delete('http://192.168.0.10:3000/api/secours/delete', {
                     data: {
                         date
                     }
@@ -1160,7 +1161,7 @@
             
             async fetchBareme(categorie, indice,annee) {
             try {
-                const response = await axios.get(`http://192.168.0.109:3000/api/bareme/${categorie}/${indice}/${annee}`);
+                const response = await axios.get(`http://192.168.0.10:3000/api/bareme/${categorie}/${indice}/${annee}`);
                 let bareme = response.data;
                 console.log('Données reçues:', bareme); // Ajoutez ce log pour voir la structure de bareme
 
@@ -1182,7 +1183,7 @@
 
         async fetchYearBar() {
             try {
-                const year = await axios.get('http://192.168.0.109:3000/bareme/year');
+                const year = await axios.get('http://192.168.0.10:3000/bareme/year');
                 this.years = year.data;
             } catch (error) {
                 alert('Erreur lors de la récupération des données des retraités');
@@ -1192,7 +1193,7 @@
 
         async fetchCategorie() {
             try {
-                const categorie = await axios.get('http://192.168.0.109:3000/categorie');
+                const categorie = await axios.get('http://192.168.0.10:3000/categorie');
                 this.categorie2 = categorie.data;
             } catch (error) {
                 alert('Erreur lors de la récupération des données des retraités');
@@ -1300,7 +1301,7 @@
                 }
 
                 try {
-                    const response = await axios.post('http://192.168.0.109:3000/api/secours', newSecours);
+                    const response = await axios.post('http://192.168.0.10:3000/api/secours', newSecours);
                     this.showMessage(response.data.message, 'alert-success');
                     this.fetchSecours()
                 } catch (error) {
@@ -1375,7 +1376,6 @@
 #Question1{
   width: 30rem;
   height: 10rem;
-  margin-left: 35%;
   margin-top: 6rem;
   border-radius: 10px;
   padding-top: 2rem;
@@ -1385,7 +1385,6 @@
 #Question2{
   width: 98%;
   height: 23rem;
-  margin-left: 10px;
   margin-top: 1rem;
   border-radius: 10px;
   padding-top: 2rem;
@@ -1397,7 +1396,6 @@
   display: flex;
   width: 98%;
   height: 23rem;
-  margin-left: 10px;
   margin-top: 1rem;
   border-radius: 10px;
   padding-top: 2rem;
@@ -1467,17 +1465,6 @@
     position: relative;
 }
 
-.prev{
-    position: absolute;
-    bottom: 21rem;
-    left: 2rem;
-}
-
-.next{
-    position: absolute;
-    bottom: 21rem;
-    right: 2rem;
-}
 
 
 </style>

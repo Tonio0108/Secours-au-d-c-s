@@ -12,10 +12,8 @@
     margin-left: 200px;
 }
 
-.form-control{
-    width: 20rem;
-    margin: auto;
-    margin-top: 2rem;
+#formulaire .form-control{
+    margin-top: 0;
 }
 
 

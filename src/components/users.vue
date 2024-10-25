@@ -28,22 +28,7 @@
                 <td>{{ user.im }}</td>
                 <td>{{ formatDate(user.created) }}</td>
               <td>
-                <div class="dropdown open">
-                  <button
-                    class="btn btn-sm btn-secondary dropdown-toggle"
-                    type="button"
-                    id="triggerId"
-                    data-bs-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                  >
-                    <i class="bi bi-pencil text-light"></i>
-                  </button>
-                  <div class="dropdown-menu" aria-labelledby="triggerId">
-                    <button class="dropdown-item" @click="" data-bs-toggle="modal" data-bs-target="#editForm">Modifier</button>
-                    <button class="dropdown-item text-danger" @click="destroy(user.username)">Supprimer</button>
-                  </div>
-                </div>
+                  <button class="btn text-danger" @click="destroy(user.username)">Supprimer</button>
               </td>
             </tr>
           </tbody>
@@ -167,7 +152,7 @@ export default {
         console.log('Données envoyées :', newUser); // Vérifiez les données ici
 
         try {
-            const response = await axios.post('http://localhost:3000/api/register', newUser);
+            const response = await axios.post('http://192.168.0.10:3000/api/register', newUser);
             this.showMessage(response.data.message, 'alert-success');
             await this.fetch();
             this.username = '';
@@ -186,7 +171,7 @@ export default {
 
     async fetch() {
       try {
-        const result = await axios.get('http://localhost:3000/api/users');
+        const result = await axios.get('http://192.168.0.10:3000/api/users');
         this.res = result.data; // Récupérer les utilisateurs
         console.log(this.res);
       } catch (error) {
@@ -202,7 +187,7 @@ export default {
                 if (!confirmation) return;
 
                 // Envoi de la requête de suppression
-                const response = await axios.delete('http://localhost:3000/api/users/delete', {
+                const response = await axios.delete('http://192.168.0.10:3000/api/users/delete', {
                     data: {
                     username,
                     }

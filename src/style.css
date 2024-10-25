@@ -189,3 +189,18 @@ label{
 #disconnect{
   margin-top: 18rem;
 }
+
+.form-control{
+  width: 20rem;
+  margin: auto;
+  margin-top: 1rem;
+}
+
+
+#importEx li{
+  margin-top: 1rem;
+  font-size: large;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  letter-spacing: 1px;
+  color: rgb(75, 75, 75);
+}

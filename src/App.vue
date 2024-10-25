@@ -33,7 +33,6 @@ async function disconnect() {
     <LoginPage v-if="$route.path == '/'"/>
     <welcome v-else-if="$route.path == '/welcome'"/>
     <Pwd v-else-if="$route.path == '/pwd'" />
-    <users v-else-if="$route.path == '/users'"/>
     <div v-else>
         <nav class="navbar navbar-expand-lg navbar-light ">
             <div class="container-fluid">
@@ -62,8 +61,13 @@ async function disconnect() {
                             </RouterLink>
                         </li>
                         <li class="nav-item">
-                            <RouterLink to="/secours" class="nav-link" :class="{ active: $route.path === '/secours' || $route.path === '/decision' }">
+                            <RouterLink to="/secours" class="nav-link" :class="{ active: $route.path === '/secours'}">
                                 <i class="bi bi-file-earmark-text me-2"></i> Secours au décès
+                            </RouterLink>
+                        </li>
+                        <li class="nav-item">
+                            <RouterLink to="/users" class="nav-link" :class="{ active: $route.path === '/users'}">
+                                <i class="bi bi-person me-2"></i> Utilisateurs
                             </RouterLink>
                         </li>
                     </ul>

@@ -4,23 +4,82 @@
   
       <!-- Modal pour importer un fichier -->
       <div class="modal fade" id="importEx" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-xl" role="document"> <!-- Ajoutez la classe modal-lg ou modal-xl ici -->
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">Importer un fichier Excel</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div class="modal-body">
+              <h3 class="text-center">NOTICE</h3>
+              <ul>
+                <li>
+                  Avant d'importer le fichier Excel, assurez-vous que le nom de chaque colonne correspond à :
+                  <table class="table table-bordered text-center mt-4">
+                    <thead>
+                      <tr>
+                        <th class="bg-body-secondary">DATEBAREME</th>
+                        <th class="bg-body-secondary">CATEGORIE</th>
+                        <th class="bg-body-secondary">INDICE</th>
+                        <th class="bg-body-secondary">V500</th>
+                        <th class="bg-body-secondary">V501</th>
+                        <th class="bg-body-secondary">V502</th>
+                        <th class="bg-body-secondary">V503</th>
+                        <th class="bg-body-secondary">V506</th>
+                        <th class="bg-body-secondary">SOLDE</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                      </tr>
+                      <tr>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                      </tr>
+                      <tr>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </li>
+                <li>
+                  Les ordres ne sont pas obligatoires, l'application gérera l'ordre des colonnes.
+                </li>
+              </ul>
+
+
               <form @submit.prevent="uploadBareme">
-                <input type="file" class="form-control mb-3" @change="handleFileUpload" accept=".xlsx, .xls" required>
+                <input type="file" class="form-control mt-4 mb-4" @change="handleFileUpload" accept=".xlsx, .xls" required>
                 <div class="modal-footer">
                   <button @click="uploadBareme" class="btn btn-primary" :disabled="loading">
                     Importer
                     <span v-if="loading" class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
                   </button>
-
                   <p v-if="loading" class="text-muted mt-2">Importation en cours...</p>
                 </div>
               </form>
@@ -28,6 +87,7 @@
           </div>
         </div>
       </div>
+
   
       <div id="searchBarBarem" class="shadow" style="height: 45rem;">
         <form class="text-center">
@@ -125,7 +185,7 @@
             this.showMessage("Tous les champs de recherche sont requis.", "alert-danger");
             return;
           }
-          const response = await axios.get(`http://192.168.0.109:3000/api/bareme/${categorie}/${indice}/${annee}`);
+          const response = await axios.get(`http://192.168.0.10:3000/api/bareme/${categorie}/${indice}/${annee}`);
           this.bareme = response.data; // Assignez les données reçues à votre variable bareme
           if (this.bareme.length === 0) {
             this.showMessage("Aucun bareme trouvé pour les critères spécifiés.", "alert-warning");
@@ -140,7 +200,7 @@
 
         async fetchCategorie() {
             try {
-                const categorie = await axios.get('http://192.168.0.109:3000/categorie');
+                const categorie = await axios.get('http://192.168.0.10:3000/categorie');
                 this.categorie2 = categorie.data;
             } catch (error) {
                 alert('Erreur lors de la récupération des données des retraités');
@@ -150,7 +210,7 @@
 
         async fetchYearBar() {
             try {
-                const year = await axios.get('http://192.168.0.109:3000/bareme/year');
+                const year = await axios.get('http://192.168.0.10:3000/bareme/year');
                 this.years = year.data;
             } catch (error) {
                 alert('Erreur lors de la récupération des données des retraités');
@@ -189,7 +249,7 @@
         this.loading = true; // Activer le chargement
 
         try {
-          const response = await axios.post("http://192.168.0.109:3000/bareme/upload", formData, {
+          const response = await axios.post("http://192.168.0.10:3000/bareme/upload", formData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },

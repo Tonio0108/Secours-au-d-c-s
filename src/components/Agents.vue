@@ -18,31 +18,101 @@
         <button id="import" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importEx">Importer excel</button>
 
       <!-- Modal pour importer un fichier -->
-      <div class="modal fade" id="importEx" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
+      <div class="modal fade" id="importEx" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true" style="">
+        <div class="modal-dialog modal-xl" role="document" >
+            <div class="modal-content" style="width: 150vh !important;">
             <div class="modal-header">
-              <h5 class="modal-title">Importer un fichier Excel</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                
-              </button>
+                <h5 class="modal-title">Importer un fichier Excel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <form @submit.prevent="this.status == 'activite'? uploadAgent() : uploadRetraite()">
+                <h3 class="text-center">NOTICE</h3>
+
+                <ul>
+                <li>
+                    Avant d'importer le fichier Excel, assurez-vous que le nom de chaque colonne dans la liste des agents <b>En activité</b> correspond à :
+                    <table class="table table-bordered text-center mt-4">
+                    <thead>
+                        <tr>
+                        <th class="bg-body-secondary">AGENTMATRICULE</th>
+                        <th class="bg-body-secondary">AGENTNOM</th>
+                        <th class="bg-body-secondary">AGENTPRENOMS</th>
+                        <th class="bg-body-secondary">AGENTSEXE</th>
+                        <th class="bg-body-secondary">AGENTDATENAIS</th>
+                        <th class="bg-body-secondary">AGENTCIN</th>
+                        <th class="bg-body-secondary">FIVCODE</th>
+                        <th class="bg-body-secondary">GRADECODE</th>
+                        <th class="bg-body-secondary">CATEGORIECODE</th>
+                        <th class="bg-body-secondary">SECTIONCODE</th>
+                        <th class="bg-body-secondary">CORPSCODE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </li>
+                <li>
+                    Avant d'importer le fichier Excel, assurez-vous que le nom de chaque colonne dans la liste des agents <b>Retraité</b> correspond à :
+                    <table class="table table-bordered text-center mt-4">
+                    <thead>
+                        <tr>
+                        <th class="bg-body-secondary">PENSION_NUMERO_MATRICULE</th>
+                        <th class="bg-body-secondary">NOM_PRENOMS</th>
+                        <th class="bg-body-secondary">CIN</th>
+                        <th class="bg-body-secondary">LOCALITE_CODE</th>
+                        <th class="bg-body-secondary">GRADE_CODE</th>
+                        <th class="bg-body-secondary">SECTION_CODE</th>
+                        <th class="bg-body-secondary">CORPSCODE</th>
+                        <th class="bg-body-secondary">INDICE</th>
+                        <th class="bg-body-secondary">MONTANT_PENSION_NET</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </li>
+                <li>
+                    Les ordres ne sont pas obligatoires, l'application gérera l'ordre des colonnes, mais les colonnes mentionnées sont obligatoires.
+                </li>
+                </ul>
+                <form @submit.prevent="this.status == 'activite' ? uploadAgent() : uploadRetraite()">
                 <input type="file" class="form-control mb-3" @change="handleFileUpload" accept=".xlsx, .xls" required>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary" :disabled="loading">
                     Importer
                     <span v-if="loading" class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
                     </button>
-
                     <p v-if="loading" class="text-muted mt-2">Importation en cours...</p>
                 </div>
-              </form>
+                </form>
             </div>
-          </div>
+            </div>
         </div>
-      </div>
+        </div>
     </div>
 
     <!-- Tableau pour les agents en activité -->
@@ -152,7 +222,7 @@ export default {
         // recuperer les agent en activité
         async fetchActive() {
             try {
-                const active = await axios.get('http://192.168.0.109:3000/api/agent/active');
+                const active = await axios.get('http://192.168.0.10:3000/api/agent/active');
                 this.actives = active.data;
             } catch (error) {
                 alert('Erreur lors de la récupération des données des agents en activité');
@@ -163,7 +233,7 @@ export default {
         //recuperer les agents en retraite
         async fetchRetraite() {
             try {
-                const retraite = await axios.get('http://192.168.0.109:3000/api/agent/retraite');
+                const retraite = await axios.get('http://192.168.0.10:3000/api/agent/retraite');
                 this.retraites = retraite.data;
             } catch (error) {
                 alert('Erreur lors de la récupération des données des retraités');
@@ -175,7 +245,7 @@ export default {
         async searchActive() {
             if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                 try {
-                const response = await axios.get(`http://192.168.0.109:3000/api/agent/active/${this.recherche}`);  // Utilise `this.recherche`
+                const response = await axios.get(`http://192.168.0.10:3000/api/agent/active/${this.recherche}`);  // Utilise `this.recherche`
                 this.resultActive = response.data;
                 } catch (error) {
                 console.error('Erreur lors de la recherche:', error);
@@ -190,7 +260,7 @@ export default {
         async searchRetraite() {
             if (this.recherche.length >= 2) {  // Vérifie que la recherche comporte au moins 3 caractères
                 try {
-                const response = await axios.get(`http://192.168.0.109:3000/api/agent/retraite/${this.recherche}`);  // Utilise `this.recherche`
+                const response = await axios.get(`http://192.168.0.10:3000/api/agent/retraite/${this.recherche}`);  // Utilise `this.recherche`
                 this.resultRetraite = response.data;
                 } catch (error) {
                 console.error('Erreur lors de la recherche:', error);
@@ -227,7 +297,7 @@ export default {
 
         try {
             // Supprimer les données existantes dans la table active
-            const supp = await axios.delete('http://192.168.0.109:3000/api/agent/active/delete');
+            const supp = await axios.delete('http://192.168.0.10:3000/api/agent/active/delete');
             if (supp.status === 200) {
             this.showMessage("Données supprimées avec succès.", "alert-success");
             } else {
@@ -236,7 +306,7 @@ export default {
             }
 
             // Importer le nouveau fichier
-            const response = await axios.post("http://192.168.0.109:3000/agent/active/upload", formData, {
+            const response = await axios.post("http://192.168.0.10:3000/agent/active/upload", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -273,7 +343,7 @@ export default {
 
             try {
                 // Supprimer les données existantes dans la table active
-                const supp = await axios.delete('http://192.168.0.109:3000/api/agent/retraite/delete');
+                const supp = await axios.delete('http://192.168.0.10:3000/api/agent/retraite/delete');
                 if (supp.status === 200) {
                 this.showMessage("Données supprimées avec succès.", "alert-success");
                 } else {
@@ -282,7 +352,7 @@ export default {
                 }
 
                 // Importer le nouveau fichier
-                const response = await axios.post("http://192.168.0.109:3000/agent/retraite/upload", formData, {
+                const response = await axios.post("http://192.168.0.10:3000/agent/retraite/upload", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },

@@ -44,6 +44,12 @@ const routes = [
   },
 
   {
+    path: '/unauthorized',
+    name: 'Unauth',
+    component: () => import('../components/unauthorized.vue')
+  },
+
+  {
     path: '/users',
     name: 'Users',
     component: () => import('../components/users.vue'),
@@ -56,7 +62,7 @@ const routes = [
         next();
       } else {
         // Sinon, redirigez vers une autre page, par exemple la page de connexion
-        next('/statistique');
+        next('/unauthorized');
       }
     }
   }

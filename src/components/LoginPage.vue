@@ -12,18 +12,34 @@
             <div class="col-6 shadow rounded-4 text-center" 
                 style="height: auto;">
                 <form @submit.prevent="connect">
-                    <label class="mt-4" for="usename">Nom d'utilisateur :</label>
-                    <input  v-model="username" class="form-control mt-3" type="text">
-                    <label class="mt-4" for="password">Mot de passe :</label>
-                    <input class="mt-3" v-model="passwordIn" :type="showPassword ? 'text' : 'password'" :class="classname" />
+                    <div class="row mt-5">
+                        <div class="col-3 ms-5 mt-5">
+                            <label class="" for="usename">Nom d'utilisateur :</label>
+                        </div>
+                        <div class="col-6 mt-5">
+                            <input  v-model="username" class="form-control" type="text" required>
+                        </div>
+                    </div>
+
+                    <div class="row mt-5">
+                        <div class="col-3 ms-5">
+                            <label class="" for="password">Mot de passe :</label>
+                        </div>
+                        <div class="col-6">
+                            <input required class="" v-model="passwordIn" :type="showPassword ? 'text' : 'password'" :class="classname" />
+                        </div>
+                        <div class="col-1">
+                            <button @click="togglePassword" type="button" class="toggle-btn">
+                                <i :class="showPassword ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill'"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
                     <p class="text-danger mt-2">{{ alert }}</p>
-                    <button @click="togglePassword" type="button" class="toggle-btn">
-                        <font-awesome-icon :icon="showPassword ? 'eye-slash' : 'eye'" />
-                    </button>
-                    <button type="submit" class="btn btn-success mt-2">Entrer</button>
+
+                    <button type="submit" class="btn btn-success mt-2">Se connecter</button>
                 </form>
                 <h6 style="margin-top: 2rem;"><i><RouterLink to="/pwd" class="nav-link">changer le mot de passe</RouterLink></i></h6>
-                <h6 style="margin-top: 1.5rem;"><i><a href="" class="nav-link text-danger">mot de passe oublié</a></i></h6>
             </div>
         </div>
     </div>
@@ -36,7 +52,7 @@ export default {
     data() {
         return {
             username: '',
-            passwordIn: '',     //variable pour stocker le mot de passe saisi
+            passwordIn: '',    
             alert: '',
             classname: 'form-control',
             showPassword: false
@@ -49,7 +65,7 @@ export default {
         async connect() {
             try {
                 //recuperation du mot de passe dans la base de donnée et comparaison entre le mdp saisi
-                const response = await axios.post('http://192.168.0.109:3000/api/login', { username: this.username,
+                const response = await axios.post('http://192.168.0.10:3000/api/login', { username: this.username,
                 password: this.passwordIn
                 });
 
@@ -83,14 +99,10 @@ export default {
 
 <style>
 .toggle-btn {
-    position: fixed;
-    right: 20%;
-    bottom: 46.5%;
-    transform: translateY(-50%);
     background-color: transparent;
     border: none;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 22px;
     color: #ffffff;
 }
 </style>
